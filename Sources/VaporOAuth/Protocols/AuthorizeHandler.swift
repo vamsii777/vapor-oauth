@@ -45,7 +45,7 @@ public struct AuthorizationRequestObject {
     // OpenID Connect specific parameters
     public let nonce: String?
     
-    public init(responseType: String, clientID: String, redirectURI: URI, scope: [String], state: String?, csrfToken: String, codeChallenge: String? = nil, codeChallengeMethod: String? = nil, nonce: String? = nil) {
+    public init(responseType: String, clientID: String, redirectURI: URI, scope: [String], state: String?, csrfToken: String, codeChallenge: String?, codeChallengeMethod: String?, nonce: String?) {
         self.responseType = responseType
         self.clientID = clientID
         self.redirectURI = redirectURI
