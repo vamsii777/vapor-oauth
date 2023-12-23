@@ -14,6 +14,19 @@ struct AuthorizeGetHandler {
         guard let authRequestObject = createdAuthRequestObject else {
             throw Abort(.internalServerError)
         }
+        
+        // Optional PKCE validation
+        if authRequestObject.responseType == ResponseType.code, let codeChallenge = authRequestObject.codeChallenge {
+            // Validate codeChallengeMethod only if codeChallenge is provided
+            guard let codeChallengeMethod = authRequestObject.codeChallengeMethod,
+                  codeChallengeMethod == "S256" else {
+                return createErrorResponse(request: request,
+                                           redirectURI: authRequestObject.redirectURIString,
+                                           errorType: OAuthResponseParameters.ErrorType.invalidRequest,
+                                           errorDescription: "Invalid code challenge method for PKCE",
+                                           state: authRequestObject.state)
+            }
+        }
 
         do {
             try await clientValidator.validateClient(
@@ -47,39 +60,39 @@ struct AuthorizeGetHandler {
         } catch AuthorizationError.httpRedirectURI {
             return try await authorizeHandler.handleAuthorizationError(.httpRedirectURI)
         }
-
+        
         let redirectURI = URI(stringLiteral: authRequestObject.redirectURIString)
-
+        
         let csrfToken = [UInt8].random(count: 32).hex
-
+        
         request.session.data[SessionData.csrfToken] = csrfToken
         let authorizationRequestObject = AuthorizationRequestObject(responseType: authRequestObject.responseType,
                                                                     clientID: authRequestObject.clientID, redirectURI: redirectURI,
                                                                     scope: authRequestObject.scopes, state: authRequestObject.state,
                                                                     csrfToken: csrfToken)
-
+        
         return try await authorizeHandler.handleAuthorizationRequest(request, authorizationRequestObject: authorizationRequestObject)
     }
-
+    
     private func validateRequest(_ request: Request) async throws -> (Response?, AuthorizationGetRequestObject?) {
         guard let clientID: String = request.query[OAuthRequestParameters.clientID] else {
             return (try await authorizeHandler.handleAuthorizationError(.invalidClientID), nil)
         }
-
+        
         guard let redirectURIString: String = request.query[OAuthRequestParameters.redirectURI] else {
             return (try await authorizeHandler.handleAuthorizationError(.invalidRedirectURI), nil)
         }
-
+        
         let scopes: [String]
-
+        
         if let scopeQuery: String = request.query[OAuthRequestParameters.scope] {
             scopes = scopeQuery.components(separatedBy: " ")
         } else {
             scopes = []
         }
-
+        
         let state: String? = request.query[OAuthRequestParameters.state]
-
+        
         guard let responseType: String = request.query[OAuthRequestParameters.responseType] else {
             let errorResponse = createErrorResponse(request: request,
                                                     redirectURI: redirectURIString,
@@ -88,7 +101,7 @@ struct AuthorizeGetHandler {
                                                     state: state)
             return (errorResponse, nil)
         }
-
+        
         guard responseType == ResponseType.code || responseType == ResponseType.token else {
             let errorResponse = createErrorResponse(request: request,
                                                     redirectURI: redirectURIString,
@@ -96,14 +109,20 @@ struct AuthorizeGetHandler {
                                                     errorDescription: "invalid+response+type", state: state)
             return (errorResponse, nil)
         }
-
+        
+        let codeChallenge: String? = request.query[OAuthRequestParameters.codeChallenge]
+        let codeChallengeMethod: String? = request.query[OAuthRequestParameters.codeChallengeMethod]
+        
         let authRequestObject = AuthorizationGetRequestObject(clientID: clientID, redirectURIString: redirectURIString,
                                                               scopes: scopes, state: state,
-                                                              responseType: responseType)
-
+                                                              responseType: responseType,
+                                                              codeChallenge: codeChallenge,
+                                                              codeChallengeMethod: codeChallengeMethod)
+        
+        
         return (nil, authRequestObject)
     }
-
+    
     private func createErrorResponse(
         request: Request,
         redirectURI: String,
@@ -112,11 +131,11 @@ struct AuthorizeGetHandler {
         state: String?
     ) -> Vapor.Response {
         var redirectString = "\(redirectURI)?error=\(errorType)&error_description=\(errorDescription)"
-
+        
         if let state = state {
             redirectString += "&state=\(state)"
         }
-
+        
         return request.redirect(to: redirectString)
     }
 }
@@ -127,4 +146,6 @@ struct AuthorizationGetRequestObject {
     let scopes: [String]
     let state: String?
     let responseType: String
+    let codeChallenge: String?
+    let codeChallengeMethod: String?
 }
