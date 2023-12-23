@@ -1,6 +1,6 @@
 import Vapor
 
-public protocol TokenManager {
+public protocol TokenManager: Sendable {
     // Generates both access and refresh tokens. Should be called after successful PKCE validation.
     func generateAccessRefreshTokens(
         clientID: String,
