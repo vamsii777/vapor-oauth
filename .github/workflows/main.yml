@@ -12,7 +12,7 @@ jobs:
   ubuntu_test:
     name: Ubuntu Build & Test
     runs-on: ubuntu-22.04
-    container: swift:5.7.3-jammy
+    container: swift:5.9.2-jammy
     steps:
     - uses: actions/checkout@v3
     - name: Build
