@@ -1,6 +1,6 @@
 import Vapor
 
-public protocol AuthorizeHandler {
+public protocol AuthorizeHandler: Sendable {
     func handleAuthorizationRequest(
         _ request: Request,
         authorizationRequestObject: AuthorizationRequestObject
