@@ -14,6 +14,10 @@ struct OAuthRequestParameters {
     static let csrfToken = "csrfToken"
     static let token = "token"
     static let deviceCode = "device_code"
+    // PKCE parameters
+    static let codeChallenge = "code_challenge"
+    static let codeChallengeMethod = "code_challenge_method"
+    static let codeVerifier = "code_verifier" // Added for PKCE
 }
 
 struct OAuthResponseParameters {
