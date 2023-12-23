@@ -26,7 +26,7 @@ public struct AuthorizationRequestObject {
     public let codeChallenge: String?
     public let codeChallengeMethod: String?
 
-    public init(responseType: String, clientID: String, redirectURI: URI, scope: [String], state: String?, csrfToken: String, codeChallenge: String?, codeChallengeMethod: String?) {
+    public init(responseType: String, clientID: String, redirectURI: URI, scope: [String], state: String?, csrfToken: String, codeChallenge: String? = nil, codeChallengeMethod: String? = nil) {
         self.responseType = responseType
         self.clientID = clientID
         self.redirectURI = redirectURI
