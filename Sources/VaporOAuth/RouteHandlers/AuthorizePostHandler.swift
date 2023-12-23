@@ -9,6 +9,9 @@ struct AuthorizePostRequest {
     let responseType: String
     let csrfToken: String
     let scopes: [String]?
+    // Include PKCE parameters
+    let codeChallenge: String?
+    let codeChallengeMethod: String?
 }
 
 struct AuthorizePostHandler {
@@ -23,7 +26,7 @@ struct AuthorizePostHandler {
 
         do {
             try await clientValidator.validateClient(clientID: requestObject.clientID, responseType: requestObject.responseType,
-                               redirectURI: requestObject.redirectURIBaseString, scopes: requestObject.scopes)
+                                                     redirectURI: requestObject.redirectURIBaseString, scopes: requestObject.scopes)
         } catch is AbortError {
             throw Abort(.forbidden)
         } catch {
@@ -48,7 +51,9 @@ struct AuthorizePostHandler {
                     userID: requestObject.userID,
                     clientID: requestObject.clientID,
                     redirectURI: requestObject.redirectURIBaseString,
-                    scopes: requestObject.scopes
+                    scopes: requestObject.scopes,
+                    codeChallenge: requestObject.codeChallenge,
+                    codeChallengeMethod: requestObject.codeChallengeMethod
                 )
                 redirectURI += "?code=\(generatedCode)"
             } else {
@@ -106,9 +111,22 @@ struct AuthorizePostHandler {
             scopes = nil
         }
 
-        return AuthorizePostRequest(user: user, userID: userID, redirectURIBaseString: redirectURIBaseString,
-                                    approveApplication: approveApplication, clientID: clientID,
-                                    responseType: responseType, csrfToken: csrfToken, scopes: scopes)
-    }
+        // Extract PKCE parameters
+        let codeChallenge: String? = request.content[OAuthRequestParameters.codeChallenge]
+        let codeChallengeMethod: String? = request.content[OAuthRequestParameters.codeChallengeMethod]
 
+        return AuthorizePostRequest(
+            user: user,
+            userID: userID,
+            redirectURIBaseString: redirectURIBaseString,
+            approveApplication: approveApplication,
+            clientID: clientID,
+            responseType: responseType,
+            csrfToken: csrfToken,
+            scopes: scopes,
+            codeChallenge: codeChallenge,
+            codeChallengeMethod: codeChallengeMethod
+        )
+    }
+    
 }
