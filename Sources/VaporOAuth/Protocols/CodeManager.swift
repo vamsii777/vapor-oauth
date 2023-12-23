@@ -1,5 +1,5 @@
 /// Responsible for generating and managing OAuth Codes
-public protocol CodeManager {
+public protocol CodeManager: Sendable {
     // Updated to include PKCE parameters
     func generateCode(userID: String, clientID: String, redirectURI: String, scopes: [String]?, codeChallenge: String?, codeChallengeMethod: String?) async throws -> String
     func getCode(_ code: String) async throws -> OAuthCode?
