@@ -1,5 +1,5 @@
 import Foundation
-import CryptoKit // Import CryptoKit for SHA256
+import Crypto // Import SwiftCrypto for SHA-256
 
 struct CodeValidator {
     func validateCode(_ code: OAuthCode, clientID: String, redirectURI: String, codeVerifier: String?) -> Bool {

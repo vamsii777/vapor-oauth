@@ -1,5 +1,4 @@
 import Vapor
-import CryptoKit // Import CryptoKit for SHA256
 
 struct AuthCodeTokenHandler {
 
