@@ -4,7 +4,7 @@ public final class OAuthUser: Authenticatable, Extendable, Encodable {
     public let username: String
     public let emailAddress: String?
     public var password: String
-    // swiftlint:disable:next identifier_name
+
     public var id: String?
 
     public var extend: Extend = .init()
