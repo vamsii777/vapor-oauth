@@ -180,7 +180,67 @@ class AuthorizationRequestTests: XCTestCase {
         
         XCTAssertEqual(capturingAuthoriseHandler.state, state)
     }
+
+    func testThatCodeChallengePassedThroughToAuthorizationHandler() async throws {
+        let codeChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+        let codeChallengeMethod = "S256"
+        
+        _ = try await respondToOAuthRequest(
+            clientID: clientID,
+            redirectURI: redirectURI,
+            codeChallenge: codeChallenge,
+            codeChallengeMethod: codeChallengeMethod
+        )
+        XCTAssertEqual(capturingAuthoriseHandler.codeChallenge, codeChallenge)
+    }
     
+    func testMissingCodeChallenge() async throws {
+        let codeChallengeMethod = "S256"
+        
+        _ = try await respondToOAuthRequest(
+            clientID: clientID,
+            redirectURI: redirectURI,
+            codeChallengeMethod: codeChallengeMethod
+        )
+        XCTAssertNil(capturingAuthoriseHandler.codeChallenge)
+    }
+    
+    func testMissingCodeChallengeMethod() async throws {
+        let codeChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+        
+        let response = try await respondToOAuthRequest(
+            clientID: clientID,
+            redirectURI: redirectURI,
+            codeChallenge: codeChallenge
+        )
+
+        // Check if the response is an error response indicating the missing codeChallengeMethod
+        XCTAssertEqual(response.status, .seeOther) // Assuming error responses are redirected
+        XCTAssertTrue(response.headers.first(name: .location)?.contains("error=") ?? false)
+    }
+    
+    func testInvalidCodeChallengeMethod() async throws {
+        let codeChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+        let invalidMethod = "invalid_method"
+        
+        _ = try await respondToOAuthRequest(
+            clientID: clientID,
+            redirectURI: redirectURI,
+            codeChallenge: codeChallenge,
+            codeChallengeMethod: invalidMethod
+        )
+        XCTAssertNotEqual(capturingAuthoriseHandler.codeChallengeMethod, invalidMethod)
+    }
+    
+    func testBothCodeChallengeAndMethodMissing() async throws {
+        _ = try await respondToOAuthRequest(
+            clientID: clientID,
+            redirectURI: redirectURI
+        )
+        XCTAssertNil(capturingAuthoriseHandler.codeChallenge)
+        XCTAssertNil(capturingAuthoriseHandler.codeChallengeMethod)
+    }
+
     func testAllPropertiesPassedThroughToAuthorizationHandler() async throws {
         let responseType = "code"
         let scope1 = "profile"
@@ -374,7 +434,7 @@ class AuthorizationRequestTests: XCTestCase {
         codeChallenge: String? = nil, // Add PKCE parameter
         codeChallengeMethod: String? = nil // Add PKCE parameter
     ) async throws -> XCTHTTPResponse {
-        try await TestDataBuilder.getAuthRequestResponse(
+        return try await TestDataBuilder.getAuthRequestResponse(
             with: app,
             responseType: responseType,
             clientID: clientID,
@@ -385,7 +445,7 @@ class AuthorizationRequestTests: XCTestCase {
             codeChallengeMethod: codeChallengeMethod // Pass PKCE parameter
         )
     }
-    
+
 }
 
 extension URI: Equatable {

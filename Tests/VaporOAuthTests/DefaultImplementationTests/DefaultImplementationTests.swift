@@ -44,7 +44,9 @@ class DefaultImplementationTests: XCTestCase {
             redirectURI: uri,
             scope: ["email"],
             state: "abcdef",
-            csrfToken: "01234"
+            csrfToken: "01234",
+            codeChallenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+            codeChallengeMethod: "S256", nonce: nil
         )
         
         let body = try await emptyAuthHandler.handleAuthorizationRequest(
