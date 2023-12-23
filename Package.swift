@@ -14,14 +14,16 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.89.3"),
-        .package(url: "https://github.com/apple/swift-crypto.git", from: "3.1.0")
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "3.1.0"),
+        .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.13.1")
     ],
     targets: [
         .target(
             name: "VaporOAuth",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
-                .product(name: "Crypto", package: "swift-crypto")
+                .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "JWTKit", package: "jwt-kit")
             ]
         ),
         .testTarget(name: "VaporOAuthTests", dependencies: [

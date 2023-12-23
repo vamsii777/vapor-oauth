@@ -27,7 +27,6 @@ class CapturingAuthoriseHandler: AuthorizeHandler {
         // Capture PKCE parameters
         self.codeChallenge = authorizationRequestObject.codeChallenge
         self.codeChallengeMethod = authorizationRequestObject.codeChallengeMethod
-        
         return Response(body: .init(string: "Allow/Deny"))
     }
     
