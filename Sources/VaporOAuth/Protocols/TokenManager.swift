@@ -1,15 +1,17 @@
 import Vapor
 
 public protocol TokenManager: Sendable {
-    // Generates both access and refresh tokens. Should be called after successful PKCE validation.
-    func generateAccessRefreshTokens(
+    // Generates access, refresh, and ID tokens. Should be called after successful authentication.
+    func generateTokens(
         clientID: String,
         userID: String?,
         scopes: [String]?,
-        accessTokenExpiryTime: Int
-    ) async throws -> (AccessToken, RefreshToken)
+        accessTokenExpiryTime: Int,
+        idTokenExpiryTime: Int,
+        nonce: String?
+    ) async throws -> (AccessToken, RefreshToken, IDToken)
 
-    // Generates only an access token. Should be called after successful PKCE validation.
+    // Generates only an access token. Should be called after successful authentication.
     func generateAccessToken(
         clientID: String,
         userID: String?,
@@ -25,4 +27,13 @@ public protocol TokenManager: Sendable {
 
     // Updates a refresh token, typically to change its scope.
     func updateRefreshToken(_ refreshToken: RefreshToken, scopes: [String]) async throws
+
+    // Generates an ID token. Should be called after successful authentication.
+    func generateIDToken(
+        clientID: String,
+        userID: String,
+        scopes: [String]?,
+        expiryTime: Int,
+        nonce: String?
+    ) async throws -> IDToken
 }
