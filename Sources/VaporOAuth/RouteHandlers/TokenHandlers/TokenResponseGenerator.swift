@@ -42,4 +42,23 @@ struct TokenResponseGenerator {
         return response
     }
 
+    func createOpenIDConnectResponse(accessToken: AccessToken, refreshToken: RefreshToken?, idToken: IDToken, expires: Int, scope: String?) throws -> Response {
+        var jsonDictionary: [String: Any] = [:]
+        
+        jsonDictionary[OAuthResponseParameters.accessToken] = accessToken
+        jsonDictionary[OAuthResponseParameters.idToken] = idToken
+        jsonDictionary[OAuthResponseParameters.expiresIn] = expires
+        
+        if let refreshToken = refreshToken {
+            jsonDictionary[OAuthResponseParameters.refreshToken] = refreshToken
+        }
+        
+        if let scope = scope {
+            jsonDictionary[OAuthResponseParameters.scope] = scope
+        }
+        
+        let json = try JSONSerialization.data(withJSONObject: jsonDictionary)
+        return try createResponseForToken(status: .ok, jsonData: json)
+    }
+
 }

@@ -12,6 +12,9 @@ public final class OAuthCode {
     public let codeChallenge: String?
     public let codeChallengeMethod: String?
 
+    // Nonce parameter
+    public var nonce: String?
+
     public var extend: [String: Any] = [:]
 
     public init(
@@ -22,7 +25,8 @@ public final class OAuthCode {
         expiryDate: Date,
         scopes: [String]?,
         codeChallenge: String?, // Add PKCE parameters
-        codeChallengeMethod: String?
+        codeChallengeMethod: String?,
+        nonce: String? = nil
     ) {
         self.codeID = codeID
         self.clientID = clientID
@@ -32,5 +36,6 @@ public final class OAuthCode {
         self.scopes = scopes
         self.codeChallenge = codeChallenge
         self.codeChallengeMethod = codeChallengeMethod
+        self.nonce = nonce
     }
 }

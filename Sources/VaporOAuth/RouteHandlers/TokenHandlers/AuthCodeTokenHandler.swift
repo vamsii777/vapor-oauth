@@ -46,15 +46,31 @@ struct AuthCodeTokenHandler {
         try await codeManager.codeUsed(code)
         
         let scopes = code.scopes
+        // Check for 'openid' scope to determine if it's an OpenID Connect request
+        let isOpenIDConnectFlow = scopes?.contains("openid") ?? false
         let expiryTime = 3600
         
-        let (access, refresh) = try await tokenManager.generateAccessRefreshTokens(
-            clientID: clientID, userID: code.userID,
-            scopes: scopes,
-            accessTokenExpiryTime: expiryTime
-        )
-        
-        return try tokenResponseGenerator.createResponse(accessToken: access, refreshToken: refresh, expires: Int(expiryTime),
-                                                         scope: scopes?.joined(separator: " "))
+        if isOpenIDConnectFlow {
+            let (access, refresh, idToken) = try await tokenManager.generateTokens(
+                clientID: clientID,
+                userID: code.userID,
+                scopes: scopes,
+                accessTokenExpiryTime: expiryTime,
+                idTokenExpiryTime: expiryTime,
+                nonce: code.nonce
+            )
+            
+            return try tokenResponseGenerator.createOpenIDConnectResponse(accessToken: access, refreshToken: refresh, idToken: idToken, expires: Int(expiryTime), scope: scopes?.joined(separator: " "))
+            
+        } else {
+            let (access, refresh) = try await tokenManager.generateAccessRefreshTokens(
+                clientID: clientID,
+                userID: code.userID,
+                scopes: scopes,
+                accessTokenExpiryTime: expiryTime
+            )
+            
+            return try tokenResponseGenerator.createResponse(accessToken: access, refreshToken: refresh, expires: Int(expiryTime), scope: scopes?.joined(separator: " "))
+        }
     }
 }

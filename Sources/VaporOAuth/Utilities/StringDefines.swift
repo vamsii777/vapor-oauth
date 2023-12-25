@@ -36,6 +36,8 @@ struct OAuthResponseParameters {
     static let username = "username"
     static let email = "email_address"
     static let expiry = "exp"
+    static let idToken: String = "id_token"
+    static let expiresIn: String = "expires_in"
 
     struct ErrorType {
         static let invalidRequest = "invalid_request"
