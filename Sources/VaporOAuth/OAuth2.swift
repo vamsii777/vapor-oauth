@@ -10,6 +10,7 @@ public struct OAuth2: LifecycleHandler {
     let resourceServerRetriever: ResourceServerRetriever
     let oAuthHelper: OAuthHelper
     let discoveryDocument: DiscoveryDocument?
+    let keyManagementService: KeyManagementService?
     
     public init(
         codeManager: CodeManager = EmptyCodeManager(),
@@ -20,7 +21,8 @@ public struct OAuth2: LifecycleHandler {
         validScopes: [String]? = nil,
         resourceServerRetriever: ResourceServerRetriever = EmptyResourceServerRetriever(),
         oAuthHelper: OAuthHelper,
-        discoveryDocument: DiscoveryDocument? = nil
+        discoveryDocument: DiscoveryDocument? = nil,
+        keyManagementService: KeyManagementService? = nil
     ) {
         self.codeManager = codeManager
         self.clientRetriever = clientRetriever
@@ -31,6 +33,7 @@ public struct OAuth2: LifecycleHandler {
         self.resourceServerRetriever = resourceServerRetriever
         self.oAuthHelper = oAuthHelper
         self.discoveryDocument = discoveryDocument
+        self.keyManagementService = keyManagementService
     }
     
     public func didBoot(_ application: Application) throws {
@@ -83,6 +86,11 @@ public struct OAuth2: LifecycleHandler {
         if let discoveryDocument = self.discoveryDocument {
             let discoveryDocumentHandler = DiscoveryDocumentHandler(discoveryDocument: discoveryDocument)
             app.get(".well-known", "openid-configuration", use: discoveryDocumentHandler.handleRequest)
+        }
+
+        if let keyManagementService = self.keyManagementService {
+            let jwksHandler = JwksHandler(keyManagementService: keyManagementService)
+            app.get(".well-known", "jwks.json", use: jwksHandler.handleRequest)
         }
         
         let tokenIntrospectionAuthMiddleware = TokenIntrospectionAuthMiddleware(resourceServerAuthenticator: resourceServerAuthenticator)
