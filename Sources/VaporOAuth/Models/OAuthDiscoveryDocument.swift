@@ -18,6 +18,8 @@ public final class OAuthDiscoveryDocument: Content {
     public let uiLocalesSupported: [String]
     public let opPolicyURI: String
     public let opTosURI: String
+    public let subjectTypesSupported: [String]
+    public let claimsSupported: [String]
 
     public var extend: [String: Any] = [:]
 
@@ -38,7 +40,9 @@ public final class OAuthDiscoveryDocument: Content {
         serviceDocumentation: String,
         uiLocalesSupported: [String],
         opPolicyURI: String,
-        opTosURI: String
+        opTosURI: String,
+        subjectTypesSupported: [String],
+        claimsSupported: [String]
     ) {
         self.issuer = issuer
         self.authorizationEndpoint = authorizationEndpoint
@@ -57,6 +61,8 @@ public final class OAuthDiscoveryDocument: Content {
         self.uiLocalesSupported = uiLocalesSupported
         self.opPolicyURI = opPolicyURI
         self.opTosURI = opTosURI
+        self.subjectTypesSupported = subjectTypesSupported
+        self.claimsSupported = claimsSupported
     }
 
     // Exclude 'extend' property from encoding
@@ -78,5 +84,7 @@ public final class OAuthDiscoveryDocument: Content {
         case uiLocalesSupported
         case opPolicyURI
         case opTosURI
+        case subjectTypesSupported
+        case claimsSupported
     }
 }
