@@ -202,6 +202,62 @@ class AuthorizationCodeTokenTests: XCTestCase {
         XCTAssertTrue(response.headers.cacheControl?.noStore ?? false)
         XCTAssertEqual(response.headers[HTTPHeaders.Name.pragma], ["no-cache"])
     }
+    
+    func testThatTokenRequestFailsIfcodeChallengeAndCodeChallengeMethodIsMissingForPKCE() async throws {
+        // Setup: Generate a code without a codeChallenge
+        let code = "testCodeWithoutCodeChallenge"
+        let codeObject = OAuthCode(
+            codeID: code,
+            clientID: "testClientID",
+            redirectURI: "https://test.redirect.uri",
+            userID: "testUserID",
+            expiryDate: Date().addingTimeInterval(3600), // 1 hour in the future
+            scopes: ["testScope"],
+            codeChallenge: nil, // No code challenge
+            codeChallengeMethod: nil
+        )
+        fakeCodeManager.codes[code] = codeObject
+
+        let response = try await getAuthCodeResponse(
+            code: code
+           
+        )
+        
+        let responseJSON = try JSONDecoder().decode(ErrorResponse.self, from: response.body)
+       
+        // Assert: Expect an error response indicating the PKCE validation failed
+        XCTAssertEqual(response.status, .badRequest)
+        // Additional assertions can be added here to check the specific error message or error type
+        XCTAssertEqual(responseJSON.errorDescription, "The code provided was invalid or expired, or the redirect URI did not match")
+    }
+    
+    func testTokenRequestFailsIfCodeVerifierIsIncorrectForPKCE() async throws {
+        // Setup: Generate a code with a codeChallenge
+        let code = "testCodeWithCodeChallenge"
+        let codeChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM" // Example code challenge
+        let codeObject = OAuthCode(
+            codeID: code,
+            clientID: "testClientID",
+            redirectURI: "https://test.redirect.uri",
+            userID: "testUserID",
+            expiryDate: Date().addingTimeInterval(3600), // 1 hour in the future
+            scopes: ["testScope"],
+            codeChallenge: codeChallenge, // Provided code challenge
+            codeChallengeMethod: "S256"
+        )
+        fakeCodeManager.codes[code] = codeObject
+
+        let response = try await getAuthCodeResponse(
+            code: code
+        )
+
+        let responseJSON = try JSONDecoder().decode(ErrorResponse.self, from: response.body)
+
+        // Assert: Expect a successful response indicating the PKCE validation passed
+        XCTAssertEqual(response.status, .badRequest)
+        // Additional assertions can be added here to check the access token, refresh token, etc.
+        XCTAssertEqual(responseJSON.errorDescription, "The code provided was invalid or expired, or the redirect URI did not match")
+    }
 
     func testCorrectErrorCodeAndHeadersReturnedIfCodeWasNotIssuedByClient() async throws {
         let codeID = "1234567"
