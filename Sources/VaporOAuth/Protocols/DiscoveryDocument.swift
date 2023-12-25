@@ -20,4 +20,6 @@ public protocol DiscoveryDocument: Sendable {
     var opTosURI: String { get }
     var extend: [String: Any] { get set }
     var resourceServerRetriever: ResourceServerRetriever? { get }
+    var subjectTypesSupported: [String] { get }
+    var claimsSupported: [String] { get }
 }

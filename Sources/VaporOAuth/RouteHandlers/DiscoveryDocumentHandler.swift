@@ -28,6 +28,8 @@ struct DiscoveryDocumentHandler {
         let uiLocalesSupported = discoveryDocument.uiLocalesSupported
         let opPolicyURI = discoveryDocument.opPolicyURI
         let opTosURI = discoveryDocument.opTosURI
+        let subjectTypesSupported = discoveryDocument.subjectTypesSupported
+        let claimsSupported = discoveryDocument.claimsSupported
         
         // Create an OAuthDiscoveryDocument object
         let discoveryDocument = OAuthDiscoveryDocument(
@@ -47,7 +49,9 @@ struct DiscoveryDocumentHandler {
             serviceDocumentation: serviceDocumentation,
             uiLocalesSupported: uiLocalesSupported,
             opPolicyURI: opPolicyURI,
-            opTosURI: opTosURI
+            opTosURI: opTosURI,
+            subjectTypesSupported: subjectTypesSupported,
+            claimsSupported: claimsSupported
         )
         
         // Return the generated discovery document

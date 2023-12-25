@@ -15,15 +15,6 @@ struct AuthorizeGetHandler {
             throw Abort(.internalServerError)
         }
         
-        // OpenID Connect specific: Validate 'openid' scope is present
-        guard authRequestObject.scopes.contains("openid") else {
-            return createErrorResponse(request: request,
-                                       redirectURI: authRequestObject.redirectURIString,
-                                       errorType: OAuthResponseParameters.ErrorType.invalidScope,
-                                       errorDescription: "Missing 'openid' scope for OpenID Connect",
-                                       state: authRequestObject.state)
-        }
-        
         // Validate nonce for OpenID Connect when responseType includes idToken
         if authRequestObject.responseType.contains(ResponseType.idToken) {
             // Validate nonce for OpenID Connect
@@ -34,7 +25,15 @@ struct AuthorizeGetHandler {
                                            errorDescription: "Nonce is required for response type id_token",
                                            state: authRequestObject.state)
             }
-            // Additional validation for nonce can be added here
+            
+            
+            guard authRequestObject.scopes.contains("openid") else {
+                return createErrorResponse(request: request,
+                                           redirectURI: authRequestObject.redirectURIString,
+                                           errorType: OAuthResponseParameters.ErrorType.invalidScope,
+                                           errorDescription: "Missing 'openid' scope for OpenID Connect",
+                                           state: authRequestObject.state)
+            }
         }
         
         do {

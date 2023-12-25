@@ -37,15 +37,8 @@ struct AuthorizePostHandler {
             throw Abort(.badRequest)
         }
         
-        // OpenID Connect specific: Ensure 'openid' scope is included
-        guard (requestObject.scopes?.contains("openid") ?? false) || requestObject.responseType.contains(ResponseType.idToken) else {
-            throw Abort(.badRequest, reason: "OpenID Connect flow requires 'openid' scope")
-        }
-        
-        
         if requestObject.approveApplication {
-            switch requestObject.responseType {
-            case ResponseType.token:
+            if requestObject.responseType == ResponseType.token {
                 let accessToken = try await tokenManager.generateAccessToken(
                     clientID: requestObject.clientID,
                     userID: requestObject.userID,
@@ -53,8 +46,7 @@ struct AuthorizePostHandler {
                     expiryTime: 3600
                 )
                 redirectURI += "#token_type=bearer&access_token=\(accessToken.tokenString)&expires_in=3600"
-                
-            case ResponseType.code:
+            } else if requestObject.responseType == ResponseType.code {
                 let generatedCode = try await codeManager.generateCode(
                     userID: requestObject.userID,
                     clientID: requestObject.clientID,
@@ -64,28 +56,8 @@ struct AuthorizePostHandler {
                     codeChallengeMethod: requestObject.codeChallengeMethod
                 )
                 redirectURI += "?code=\(generatedCode)"
-                
-            case ResponseType.idToken:
-                
-                guard let nonce = requestObject.nonce else {
-                    throw Abort(.badRequest, reason: "Nonce is required for OpenID Connect id_token response type")
-                }
-                
-                let idToken = try await tokenManager.generateIDToken(
-                    clientID: requestObject.clientID,
-                    userID: requestObject.userID,
-                    scopes: requestObject.scopes,
-                    expiryTime: 3600,
-                    nonce: requestObject.nonce
-                )
-                redirectURI += "#id_token=\(idToken.tokenString)&expires_in=3600&token_type=bearer"
-                
-            case ResponseType.idToken, ResponseType.tokenAndIdToken:
-                
-                guard let nonce = requestObject.nonce else {
-                    throw Abort(.badRequest, reason: "Nonce is required for OpenID Connect id_token response type")
-                }
-                // Hybrid Flow: Generate both access token and ID token
+            } else if requestObject.responseType == ResponseType.idToken || requestObject.responseType ==  ResponseType.tokenAndIdToken {
+                // Handle "token id_token" response type (Hybrid Flow)
                 let accessToken = try await tokenManager.generateAccessToken(
                     clientID: requestObject.clientID,
                     userID: requestObject.userID,
@@ -100,8 +72,7 @@ struct AuthorizePostHandler {
                     nonce: requestObject.nonce
                 )
                 redirectURI += "#access_token=\(accessToken.tokenString)&id_token=\(idToken.tokenString)&expires_in=3600&token_type=bearer"
-                
-            default:
+            } else {
                 redirectURI += "?error=invalid_request&error_description=unknown+response+type"
             }
         } else {
