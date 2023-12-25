@@ -56,7 +56,17 @@ struct AuthorizePostHandler {
                     codeChallengeMethod: requestObject.codeChallengeMethod
                 )
                 redirectURI += "?code=\(generatedCode)"
-            } else if requestObject.responseType == ResponseType.idToken || requestObject.responseType ==  ResponseType.tokenAndIdToken {
+            } else if requestObject.responseType == ResponseType.idToken{
+                let idToken = try await tokenManager.generateIDToken(
+                    clientID: requestObject.clientID,
+                    userID: requestObject.userID,
+                    scopes: requestObject.scopes,
+                    expiryTime: 3600,
+                    nonce: requestObject.nonce
+                )
+               redirectURI += "#id_token=\(idToken.tokenString)&expires_in=3600&token_type=bearer"
+            }
+            else if requestObject.responseType ==  ResponseType.tokenAndIdToken {
                 // Handle "token id_token" response type (Hybrid Flow)
                 let accessToken = try await tokenManager.generateAccessToken(
                     clientID: requestObject.clientID,
