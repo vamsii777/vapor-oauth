@@ -29,6 +29,9 @@ public enum AuthorizationError: Error {
     case requestNotSupported
     case requestUriNotSupported
     case registrationNotSupported
+    // PKCE specific errors
+    case invalidCodeChallenge
+    case invalidCodeChallengeMethod
 }
 
 
