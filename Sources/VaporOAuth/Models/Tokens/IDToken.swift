@@ -1,7 +1,7 @@
 import JWTKit
 import Vapor
 
-public protocol IDToken {
+public protocol IDToken: JWTPayload {
     var tokenString: String { get set }
     var issuer: String { get set }
     var subject: String { get set }
