@@ -9,6 +9,7 @@ public struct OAuth2: LifecycleHandler {
     let validScopes: [String]?
     let resourceServerRetriever: ResourceServerRetriever
     let oAuthHelper: OAuthHelper
+    let jwtSignerService: JWTSignerService
     let discoveryDocument: DiscoveryDocument?
     let keyManagementService: KeyManagementService?
     
@@ -21,6 +22,7 @@ public struct OAuth2: LifecycleHandler {
         validScopes: [String]? = nil,
         resourceServerRetriever: ResourceServerRetriever = EmptyResourceServerRetriever(),
         oAuthHelper: OAuthHelper,
+        jwtSignerService: JWTSignerService,
         discoveryDocument: DiscoveryDocument? = nil,
         keyManagementService: KeyManagementService? = nil
     ) {
@@ -32,6 +34,7 @@ public struct OAuth2: LifecycleHandler {
         self.validScopes = validScopes
         self.resourceServerRetriever = resourceServerRetriever
         self.oAuthHelper = oAuthHelper
+        self.jwtSignerService = jwtSignerService
         self.discoveryDocument = discoveryDocument
         self.keyManagementService = keyManagementService
     }
@@ -55,7 +58,8 @@ public struct OAuth2: LifecycleHandler {
             scopeValidator: scopeValidator,
             codeManager: codeManager,
             userManager: userManager,
-            logger: app.logger
+            logger: app.logger, 
+            jwtSignerService: jwtSignerService
         )
         
         let tokenIntrospectionHandler = TokenIntrospectionHandler(
