@@ -1,7 +1,7 @@
 import Foundation
 import JWTKit
 
-public protocol KeyManagementService {
+public protocol KeyManagementService: Sendable  {
     func generateKey() throws -> RSAKey
     func storeKey(_ key: RSAKey) throws
     func retrieveKey(identifier: String) throws -> RSAKey

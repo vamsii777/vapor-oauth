@@ -1,7 +1,7 @@
 import Vapor
 
 struct TokenHandler {
-
+    let jwtSignerService: JWTSignerService
     let tokenAuthenticator = TokenAuthenticator()
     let refreshTokenHandler: RefreshTokenHandler
     let clientCredentialsTokenHandler: ClientCredentialsTokenHandler
@@ -9,10 +9,11 @@ struct TokenHandler {
     let authCodeTokenHandler: AuthCodeTokenHandler
     let passwordTokenHandler: PasswordTokenHandler
     let deviceCodeTokenHandler: DeviceCodeTokenHandler
-
+    
     init(clientValidator: ClientValidator, tokenManager: TokenManager, scopeValidator: ScopeValidator,
-         codeManager: CodeManager, userManager: UserManager, logger: Logger) {
-        tokenResponseGenerator = TokenResponseGenerator()
+         codeManager: CodeManager, userManager: UserManager, logger: Logger, jwtSignerService: JWTSignerService) {
+        self.jwtSignerService = jwtSignerService
+        tokenResponseGenerator = TokenResponseGenerator(jwtSignerService: jwtSignerService)
         refreshTokenHandler = RefreshTokenHandler(scopeValidator: scopeValidator, tokenManager: tokenManager,
                                                   clientValidator: clientValidator, tokenAuthenticator: tokenAuthenticator,
                                                   tokenResponseGenerator: tokenResponseGenerator)
@@ -30,13 +31,13 @@ struct TokenHandler {
                                                         tokenManager: tokenManager,
                                                         tokenResponseGenerator: tokenResponseGenerator)
     }
-
+    
     func handleRequest(request: Request) async throws -> Response {
         guard let grantType: String = request.content[OAuthRequestParameters.grantType] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'grant_type' parameter")
         }
-
+        
         switch grantType {
         case OAuthFlowType.authorization.rawValue:
             return try await authCodeTokenHandler.handleAuthCodeTokenRequest(request)
@@ -52,7 +53,7 @@ struct TokenHandler {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.unsupportedGrant,
                                                              description: "This server does not support the '\(grantType)' grant type")
         }
-
+        
     }
-
+    
 }
