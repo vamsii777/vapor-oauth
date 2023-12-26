@@ -6,4 +6,5 @@ public struct FakeRefreshToken: RefreshToken {
     public var clientID: String
     public var userID: String?
     public var scopes: [String]?
+    public var expiration: Date
 }

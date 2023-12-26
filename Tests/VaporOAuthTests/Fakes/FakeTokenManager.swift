@@ -1,8 +1,17 @@
 import VaporOAuth
 import Foundation
+import JWTKit
 
 // Define your custom IDToken conforming struct
 struct MyIDToken: VaporOAuth.IDToken {
+    func verify(using signer: JWTKit.JWTSigner) throws {
+        // Verify that the token has not expired
+        try expiration.verifyNotExpired()
+        
+        // Additional verification logic can be added here
+        // For example, verifying issuer, audience, etc.
+    }
+    
     var tokenString: String = ""
     var issuer: String = ""
     var subject: String = ""
@@ -61,7 +70,7 @@ class FakeTokenManager: TokenManager {
     
     func generateAccessRefreshTokens(clientID: String, userID: String?, scopes: [String]?, accessTokenExpiryTime: Int) throws -> (AccessToken, RefreshToken) {
         let accessToken = FakeAccessToken(tokenString: accessTokenToReturn, clientID: clientID, userID: userID, scopes: scopes, expiryTime: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
-        let refreshToken = FakeRefreshToken(tokenString: refreshTokenToReturn, clientID: clientID, userID: userID, scopes: scopes)
+        let refreshToken = FakeRefreshToken(tokenString: refreshTokenToReturn, clientID: clientID, userID: userID, scopes: scopes, expiration: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
         
         accessTokens[accessTokenToReturn] = accessToken
         refreshTokens[refreshTokenToReturn] = refreshToken

@@ -320,6 +320,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         let accessToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let refreshToken = "01234567890"
 
+        
         fakeTokenManager.accessTokenToReturn = accessToken
         fakeTokenManager.refreshTokenToReturn = refreshToken
 

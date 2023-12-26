@@ -35,6 +35,8 @@ class AuthCodeResourceServerTests: XCTestCase {
         let fakeCodeManager = FakeCodeManager()
         let clientRetriever = StaticClientRetriever(clients: [newClient])
         let fakeUserManager = FakeUserManager()
+        let fakeJWTSignerService = FakeJWTSignerService()
+        
         fakeTokenManager = FakeTokenManager()
         capturingAuthouriseHandler = CapturingAuthoriseHandler()
 
@@ -52,7 +54,7 @@ class AuthCodeResourceServerTests: XCTestCase {
                 tokenAuthenticator: TokenAuthenticator(),
                 userManager: fakeUserManager,
                 tokenManager: fakeTokenManager
-            )
+            ), jwtSignerService: fakeJWTSignerService
         )
 
         app = Application(.testing)
