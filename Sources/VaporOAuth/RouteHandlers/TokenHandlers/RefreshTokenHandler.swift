@@ -55,13 +55,13 @@ struct RefreshTokenHandler {
         }
 
         let expiryTime = 3600
-        let accessToken  = try await tokenManager.generateAccessToken(
+        let accessToken  = try await tokenManager.generateAccessRefreshTokens(
             clientID: refreshTokenRequest.clientID,
             userID: refreshTokenRequest.refreshToken.userID,
-            scopes: scopesRequested, expiryTime: expiryTime
+            scopes: scopesRequested, accessTokenExpiryTime: expiryTime
         )
 
-        return try tokenResponseGenerator.createResponse(accessToken: accessToken, refreshToken: nil,
+        return try tokenResponseGenerator.createResponse(accessToken: accessToken.0, refreshToken: accessToken.1,
                                                          expires: expiryTime, scope: scopesString)
     }
 
