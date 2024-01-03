@@ -45,7 +45,7 @@ struct AuthorizePostHandler {
                     scopes: requestObject.scopes,
                     expiryTime: 3600
                 )
-                redirectURI += "#token_type=bearer&access_token=\(accessToken.tokenString)&expires_in=3600"
+                redirectURI += "#token_type=bearer&access_token=\(accessToken.jti)&expires_in=3600"
             } else if requestObject.responseType == ResponseType.code {
                 let generatedCode = try await codeManager.generateCode(
                     userID: requestObject.userID,
@@ -64,7 +64,7 @@ struct AuthorizePostHandler {
                     expiryTime: 3600,
                     nonce: requestObject.nonce
                 )
-               redirectURI += "#id_token=\(idToken.tokenString)&expires_in=3600&token_type=bearer"
+               redirectURI += "#id_token=\(idToken.jti)&expires_in=3600&token_type=bearer"
             }
             else if requestObject.responseType ==  ResponseType.tokenAndIdToken {
                 // Handle "token id_token" response type (Hybrid Flow)
@@ -81,7 +81,7 @@ struct AuthorizePostHandler {
                     expiryTime: 3600,
                     nonce: requestObject.nonce
                 )
-                redirectURI += "#access_token=\(accessToken.tokenString)&id_token=\(idToken.tokenString)&expires_in=3600&token_type=bearer"
+                redirectURI += "#access_token=\(accessToken.jti)&id_token=\(idToken.jti)&expires_in=3600&token_type=bearer"
             } else {
                 redirectURI += "?error=invalid_request&error_description=unknown+response+type"
             }

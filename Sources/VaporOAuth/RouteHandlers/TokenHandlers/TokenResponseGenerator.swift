@@ -13,16 +13,22 @@ struct TokenResponseGenerator {
         return try createResponseForToken(status: status, jsonData: json)
     }
 
-    func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?,
-                        expires: Int, scope: String?) throws -> Response {
-        var jsonDictionary = [
+    func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?, expires: Int, scope: String?) throws -> Response {
+        let jwtSigner = try jwtSignerService.makeJWTSigner()
+
+        // Sign the access token to create JWT
+        let accessTokenJWT = try jwtSigner.sign(accessToken)
+
+        var jsonDictionary: [String: Any] = [
             OAuthResponseParameters.tokenType: "bearer",
             OAuthResponseParameters.expires: expires,
-            OAuthResponseParameters.accessToken: accessToken.tokenString
-        ] as [String : Any]
+            OAuthResponseParameters.accessToken: accessTokenJWT
+        ]
 
+        // If a refresh token is available, sign it to create JWT
         if let refreshToken = refreshToken {
-            jsonDictionary[OAuthResponseParameters.refreshToken] = refreshToken.tokenString
+            let refreshTokenJWT = try jwtSigner.sign(refreshToken)
+            jsonDictionary[OAuthResponseParameters.refreshToken] = refreshTokenJWT
         }
 
         if let scope = scope {

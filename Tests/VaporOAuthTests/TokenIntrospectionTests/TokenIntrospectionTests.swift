@@ -34,7 +34,7 @@ class TokenIntrospectionTests: XCTestCase {
         fakeResourceServerRetriever.resourceServers[resourceServerName] = resourceServer
 
         let validToken = FakeAccessToken(
-            tokenString: accessToken,
+            jti: accessToken,
             clientID: clientID,
             userID: nil,
             expiryTime: Date().addingTimeInterval(60)
@@ -93,7 +93,7 @@ class TokenIntrospectionTests: XCTestCase {
 
     func testThatExpiredTokenReturnsInactive() async throws {
         let tokenString = "EXPIRED_TOKEN"
-        let expiredToken = FakeAccessToken(tokenString: tokenString, clientID: testClientID, userID: nil, expiryTime: Date().addingTimeInterval(-60))
+        let expiredToken = FakeAccessToken(jti: tokenString, clientID: testClientID, userID: nil, expiryTime: Date().addingTimeInterval(-60))
         fakeTokenManager.accessTokens[tokenString] = expiredToken
         let response = try await getInfoResponse(token: tokenString)
 
@@ -114,7 +114,7 @@ class TokenIntrospectionTests: XCTestCase {
 
     func testThatScopeReturnedInReponseIfTokenHasScope() async throws {
         let tokenString = "VALID_TOKEN"
-        let validToken = FakeAccessToken(tokenString: tokenString, clientID: clientID, userID: nil, scopes: ["email", "profile"], expiryTime: Date().addingTimeInterval(60))
+        let validToken = FakeAccessToken(jti: tokenString, clientID: clientID, userID: nil, scopes: ["email", "profile"], expiryTime: Date().addingTimeInterval(60))
         fakeTokenManager.accessTokens[tokenString] = validToken
 
         let response = try await getInfoResponse(token: tokenString)
@@ -140,7 +140,7 @@ class TokenIntrospectionTests: XCTestCase {
         let userID = "123"
         let username = "hansolo"
         let tokenString = "VALID_TOKEN"
-        let validToken = FakeAccessToken(tokenString: tokenString, clientID: clientID, userID: userID, expiryTime: Date().addingTimeInterval(60))
+        let validToken = FakeAccessToken(jti: tokenString, clientID: clientID, userID: userID, expiryTime: Date().addingTimeInterval(60))
         fakeTokenManager.accessTokens[tokenString] = validToken
         let newUser = OAuthUser(userID: userID, username: username, emailAddress: "han@therebelalliance.com", password: "leia")
         fakeUserManager.users.append(newUser)
@@ -157,7 +157,7 @@ class TokenIntrospectionTests: XCTestCase {
     func testTokenExpiryReturnedInResponse() async throws {
         let tokenString = "VALID_TOKEN"
         let expiryDate = Date().addingTimeInterval(60)
-        let validToken = FakeAccessToken(tokenString: tokenString, clientID: clientID, userID: nil, expiryTime: expiryDate)
+        let validToken = FakeAccessToken(jti: tokenString, clientID: clientID, userID: nil, expiryTime: expiryDate)
         fakeTokenManager.accessTokens[tokenString] = validToken
 
         let response = try await getInfoResponse(token: tokenString)

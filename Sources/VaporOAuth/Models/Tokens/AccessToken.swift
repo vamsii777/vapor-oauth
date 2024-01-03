@@ -2,7 +2,7 @@ import Vapor
 import JWTKit
 
 public protocol AccessToken: JWTPayload {
-    var tokenString: String { get }
+    var jti: String { get }
     var clientID: String { get }
     var userID: String? { get }
     var scopes: [String]? { get }

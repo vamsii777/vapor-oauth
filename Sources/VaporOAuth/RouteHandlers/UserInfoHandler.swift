@@ -33,7 +33,7 @@ struct UserInfoHandler {
 }
 
 struct AccessTokenPayload: AccessToken, JWTPayload {
-    let tokenString: String
+    let jti: String
     let clientID: String
     let userID: String?
     let scopes: [String]?

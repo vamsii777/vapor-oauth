@@ -247,7 +247,7 @@ class AuthCodeResourceServerTests: XCTestCase {
     func testAccessingProtectedRouteWithInvalidScopeReturns401() async throws {
         let tokenID = "new-token-ID-invalid-scope"
         let token = FakeAccessToken(
-            tokenString: tokenID,
+            jti: tokenID,
             clientID: newClientID,
             userID: newUser.id,
             scopes: ["invalid"],
@@ -264,7 +264,7 @@ class AuthCodeResourceServerTests: XCTestCase {
 
     func testAccessingProtectedRouteWithOneInvalidScopeOneValidReturns401() async throws {
         let tokenID = "new-token-ID-invalid-scope"
-        let token = FakeAccessToken(tokenString: tokenID, clientID: newClientID, userID: newUser.id, scopes: ["invalid", scope], expiryTime: Date().addingTimeInterval(3600))
+        let token = FakeAccessToken(jti: tokenID, clientID: newClientID, userID: newUser.id, scopes: ["invalid", scope], expiryTime: Date().addingTimeInterval(3600))
         fakeTokenManager.accessTokens[tokenID] = token
 
         try app.test(.GET, "/protected/", beforeRequest: { req in
@@ -276,7 +276,7 @@ class AuthCodeResourceServerTests: XCTestCase {
 
     func testAccessingProtectedRouteWithLowercaseHeaderWorks() async throws {
         let tokenID = "new-token-ID-invalid-scope"
-        let token = FakeAccessToken(tokenString: tokenID, clientID: newClientID, userID: newUser.id, scopes: [scope, scope2], expiryTime: Date().addingTimeInterval(3600))
+        let token = FakeAccessToken(jti: tokenID, clientID: newClientID, userID: newUser.id, scopes: [scope, scope2], expiryTime: Date().addingTimeInterval(3600))
         fakeTokenManager.accessTokens[tokenID] = token
 
         try app.test(.GET, "/protected/", beforeRequest: { req in
@@ -288,7 +288,7 @@ class AuthCodeResourceServerTests: XCTestCase {
 
     func testThatAccessingProtectedRouteWithExpiredTokenReturns401() async throws {
         let tokenID = "new-token-ID-invalid-scope"
-        let token = FakeAccessToken(tokenString: tokenID, clientID: newClientID, userID: newUser.id, scopes: [scope, scope2], expiryTime: Date().addingTimeInterval(-3600))
+        let token = FakeAccessToken(jti: tokenID, clientID: newClientID, userID: newUser.id, scopes: [scope, scope2], expiryTime: Date().addingTimeInterval(-3600))
         fakeTokenManager.accessTokens[tokenID] = token
 
         try app.test(.GET, "/protected/", beforeRequest: { req in
