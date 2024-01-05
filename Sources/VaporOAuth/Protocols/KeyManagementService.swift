@@ -7,6 +7,7 @@ public protocol KeyManagementService: Sendable  {
     func retrieveKey(identifier: String) throws -> RSAKey
     func publicKeyIdentifier() throws -> String
     func convertToJWK(_ key: RSAKey) throws -> JWK 
+    func privateKeyIdentifier() throws -> String
     // Additional methods for key rotation, deletion, etc.
 
 }
