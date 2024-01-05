@@ -78,6 +78,8 @@ public struct OAuth2: LifecycleHandler {
             clientValidator: clientValidator
         )
         
+        let userInfoHandler = UserInfoHandler(jwtSignerService: jwtSignerService, userManager: userManager)
+                
         let resourceServerAuthenticator = ResourceServerAuthenticator(resourceServerRetriever: resourceServerRetriever)
         
         // returning something like "Authenticate with GitHub page"
@@ -96,6 +98,8 @@ public struct OAuth2: LifecycleHandler {
             let jwksHandler = JwksHandler(keyManagementService: keyManagementService)
             app.get(".well-known", "jwks.json", use: jwksHandler.handleRequest)
         }
+        
+        app.get("oauth", "userinfo", use: userInfoHandler.handleRequest)
         
         let tokenIntrospectionAuthMiddleware = TokenIntrospectionAuthMiddleware(resourceServerAuthenticator: resourceServerAuthenticator)
         let resourceServerProtected = app.routes.grouped(tokenIntrospectionAuthMiddleware)
