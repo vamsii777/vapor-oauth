@@ -1,11 +1,11 @@
 import Vapor
 
-public final class OAuthUser: Authenticatable, Extendable, Encodable, Content {
+public final class OAuthUser: Authenticatable, Content {
+    
+    public var id: String?
     public let username: String
     public let emailAddress: String?
     public var password: String
-    
-    public var id: String?
     
     // OpenID Connect specific attributes
     public var name: String?
@@ -21,15 +21,14 @@ public final class OAuthUser: Authenticatable, Extendable, Encodable, Content {
     public var zoneinfo: String?
     public var locale: String?
     public var phoneNumber: String?
+    public var extend: [String: String]?
     public var updatedAt: Date?
-    
-    public var extend: Extend = .init()
     
     public init(userID: String? = nil, username: String, emailAddress: String?, password: String,
                 name: String? = nil, givenName: String? = nil, familyName: String? = nil, middleName: String? = nil,
                 nickname: String? = nil, profile: String? = nil, picture: String? = nil, website: String? = nil,
                 gender: String? = nil, birthdate: String? = nil, zoneinfo: String? = nil, locale: String? = nil,
-                phoneNumber: String? = nil, updatedAt: Date? = nil) {
+                phoneNumber: String? = nil, extend: [String: String]? = nil, updatedAt: Date? = nil) {
         self.username = username
         self.emailAddress = emailAddress
         self.password = password
@@ -47,6 +46,7 @@ public final class OAuthUser: Authenticatable, Extendable, Encodable, Content {
         self.zoneinfo = zoneinfo
         self.locale = locale
         self.phoneNumber = phoneNumber
+        self.extend = extend
         self.updatedAt = updatedAt
     }
 }
