@@ -47,15 +47,37 @@ struct AuthorizePostHandler {
                 )
                 redirectURI += "#token_type=bearer&access_token=\(accessToken.jti)&expires_in=3600"
             } else if requestObject.responseType == ResponseType.code {
-                let generatedCode = try await codeManager.generateCode(
-                    userID: requestObject.userID,
-                    clientID: requestObject.clientID,
-                    redirectURI: requestObject.redirectURIBaseString,
-                    scopes: requestObject.scopes,
-                    codeChallenge: requestObject.codeChallenge,
-                    codeChallengeMethod: requestObject.codeChallengeMethod
-                )
-                redirectURI += "?code=\(generatedCode)"
+                if requestObject.scopes?.contains("openid") == true {
+                    // Handle the case where responseType is 'code' and scope includes 'openid'
+                    // Generate ID token along with the code
+                    let generatedCode = try await codeManager.generateCode(
+                        userID: requestObject.userID,
+                        clientID: requestObject.clientID,
+                        redirectURI: requestObject.redirectURIBaseString,
+                        scopes: requestObject.scopes,
+                        codeChallenge: requestObject.codeChallenge,
+                        codeChallengeMethod: requestObject.codeChallengeMethod
+                    )
+                    let idToken = try await tokenManager.generateIDToken(
+                        clientID: requestObject.clientID,
+                        userID: requestObject.userID,
+                        scopes: requestObject.scopes,
+                        expiryTime: 3600,
+                        nonce: requestObject.nonce
+                    )
+                    redirectURI += "?code=\(generatedCode)&id_token=\(idToken.jti)"
+                } else {
+                    // Standard logic for authorization code flow without OpenID Connect
+                    let generatedCode = try await codeManager.generateCode(
+                        userID: requestObject.userID,
+                        clientID: requestObject.clientID,
+                        redirectURI: requestObject.redirectURIBaseString,
+                        scopes: requestObject.scopes,
+                        codeChallenge: requestObject.codeChallenge,
+                        codeChallengeMethod: requestObject.codeChallengeMethod
+                    )
+                    redirectURI += "?code=\(generatedCode)"
+                }
             } else if requestObject.responseType == ResponseType.idToken{
                 let idToken = try await tokenManager.generateIDToken(
                     clientID: requestObject.clientID,
@@ -64,7 +86,7 @@ struct AuthorizePostHandler {
                     expiryTime: 3600,
                     nonce: requestObject.nonce
                 )
-               redirectURI += "#id_token=\(idToken.jti)&expires_in=3600&token_type=bearer"
+                redirectURI += "#id_token=\(idToken.jti)&expires_in=3600&token_type=bearer"
             }
             else if requestObject.responseType ==  ResponseType.tokenAndIdToken {
                 // Handle "token id_token" response type (Hybrid Flow)
