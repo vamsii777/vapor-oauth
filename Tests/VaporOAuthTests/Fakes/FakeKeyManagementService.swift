@@ -4,6 +4,11 @@ import Foundation
 import Crypto
 
 class FakeKeyManagementService: KeyManagementService {
+    
+    func privateKeyIdentifier() throws -> String {
+        return ""
+    }
+    
     func generateKey() throws -> RSAKey {
         // Not required for HMAC based implementation
         fatalError("generateKey() should not be called in FakeKeyManagementService")
