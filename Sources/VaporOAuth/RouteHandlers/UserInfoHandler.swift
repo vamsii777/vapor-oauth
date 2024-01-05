@@ -23,7 +23,7 @@ struct UserInfoHandler {
         let accessTokenPayload = try jwtSigner.verify(bearerToken.token, as: AccessTokenPayload.self)
         
         // Safely unwrap the userID
-        guard let userID = accessTokenPayload.userID else {
+        guard let userID = accessTokenPayload.sub else {
             throw Abort(.unauthorized, reason: "Access token does not contain a user ID")
         }
         
@@ -36,17 +36,16 @@ struct UserInfoHandler {
     }
 }
 
-struct AccessTokenPayload: AccessToken, JWTPayload {
+struct AccessTokenPayload: JWTPayload {
     let jti: String
-    let clientID: String
-    let userID: String?
+    let sub: String?
     let scopes: [String]?
-    let expiryTime: Date
+    let exp: Date
     
     // Implement any necessary verification logic
     func verify(using signer: JWTSigner) throws {
         // For example, verify the expiry time
-        guard expiryTime > Date() else {
+        guard exp > Date() else {
             throw Abort(.unauthorized, reason: "Token expired")
         }
     }
