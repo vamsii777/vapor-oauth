@@ -56,7 +56,8 @@ struct AuthorizePostHandler {
                         redirectURI: requestObject.redirectURIBaseString,
                         scopes: requestObject.scopes,
                         codeChallenge: requestObject.codeChallenge,
-                        codeChallengeMethod: requestObject.codeChallengeMethod
+                        codeChallengeMethod: requestObject.codeChallengeMethod,
+                        nonce: requestObject.nonce
                     )
                     let idToken = try await tokenManager.generateIDToken(
                         clientID: requestObject.clientID,
@@ -74,7 +75,8 @@ struct AuthorizePostHandler {
                         redirectURI: requestObject.redirectURIBaseString,
                         scopes: requestObject.scopes,
                         codeChallenge: requestObject.codeChallenge,
-                        codeChallengeMethod: requestObject.codeChallengeMethod
+                        codeChallengeMethod: requestObject.codeChallengeMethod,
+                        nonce: requestObject.nonce
                     )
                     redirectURI += "?code=\(generatedCode)"
                 }
@@ -163,7 +165,7 @@ struct AuthorizePostHandler {
         let codeChallenge: String? = request.content[OAuthRequestParameters.codeChallenge]
         let codeChallengeMethod: String? = request.content[OAuthRequestParameters.codeChallengeMethod]
         
-        // Extract nonce for OpenID Connect
+        // Extract nonce for OpenID Connect from the request content
         let nonce: String? = request.content[OAuthRequestParameters.nonce]
         
         

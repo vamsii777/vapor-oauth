@@ -11,7 +11,8 @@ class StubCodeManager: CodeManager {
         redirectURI: String,
         scopes: [String]?,
         codeChallenge: String?,
-        codeChallengeMethod: String?
+        codeChallengeMethod: String?,
+        nonce: String?
     ) async throws -> String {
         return codeToReturn
     }
