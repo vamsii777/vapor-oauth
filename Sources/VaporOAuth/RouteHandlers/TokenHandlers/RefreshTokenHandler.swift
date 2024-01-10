@@ -24,9 +24,9 @@ struct RefreshTokenHandler {
         var scopesRequested = scopesString?.components(separatedBy: " ")
 
         if let scopes = scopesRequested {
-
             do {
-                try await scopeValidator.validateScope(clientID: refreshTokenRequest.clientID, scopes: scopes)
+                let scopesString = scopes.joined(separator: " ")
+                try await scopeValidator.validateScope(clientID: refreshTokenRequest.clientID, scopes: scopesString)
             } catch ScopeError.invalid {
                 return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                  description: "Request contained an invalid scope")

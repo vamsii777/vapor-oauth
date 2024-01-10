@@ -48,7 +48,8 @@ struct DeviceCodeTokenHandler {
 
         if let scopes = deviceCode.scopes {
             do {
-                try await scopeValidator.validateScope(clientID: clientID, scopes: scopes)
+                let scopesString = scopes.joined(separator: " ")
+                try await scopeValidator.validateScope(clientID: clientID, scopes: scopesString)
             } catch ScopeError.invalid, ScopeError.unknown {
                 return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                  description: "Request contained an invalid or unknown scope")
