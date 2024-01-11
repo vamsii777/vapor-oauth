@@ -1,13 +1,6 @@
-//
-//  OAuthDeviceCode.swift
-//
-//
-//  Created by Vamsi Madduluri on 24/08/23.
-//
-
 import Foundation
 
-public final class OAuthDeviceCode {
+public struct OAuthDeviceCode {
     public let deviceCodeID: String
     public let userCode: String
     public let clientID: String

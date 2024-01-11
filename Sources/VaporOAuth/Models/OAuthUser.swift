@@ -1,6 +1,6 @@
 import Vapor
 
-public final class OAuthUser: Authenticatable, Content {
+public struct  OAuthUser: Authenticatable, Content {
     
     public var id: String?
     public let username: String
