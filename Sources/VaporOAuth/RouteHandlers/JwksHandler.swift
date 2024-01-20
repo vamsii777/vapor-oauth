@@ -17,9 +17,9 @@ struct JwksHandler {
     
     private func getPublicJWKs() throws -> [JWK] {
         // Retrieve your public RSA keys using the KeyManagementService
-        let publicKey = try keyManagementService.retrieveKey(identifier: keyManagementService.publicKeyIdentifier())
+        let publicKey = try keyManagementService.retrieveKey(identifier: keyManagementService.publicKeyIdentifier(), keyType: .public)
         // Convert the RSA public key to JWK format
         let jwk = try keyManagementService.convertToJWK(publicKey)
-        return [jwk]
+        return jwk
     }
 }

@@ -6,56 +6,57 @@ public enum KeyType: String, Codable {
     case `private`
 }
 
-/// Protocol for managing RSA keys used in cryptographic operations.
-public protocol KeyManagementService: Sendable  {
+/// A protocol that defines the interface for a key management service.
+public protocol KeyManagementService: Sendable {
 
-    /// Generates a new RSA key.
-    /// - Returns: A newly generated RSAKey.
+    /// Generates a new key pair and returns the identifiers for the private and public keys.
+    /// - Returns: A tuple containing the private key identifier and the public key identifier.
     /// - Throws: An error if the key generation fails.
-    func generateKey() throws -> RSAKey
+    func generateKey() throws -> (privateKeyIdentifier: String, publicKeyIdentifier: String)
 
-    /// Stores a RSA key string.
-    /// - Parameter key: The RSA key string to store.
-    /// - Parameter keyType: The type of key (public or private).
-    /// - Throws: An error if storing the key fails.
+    /// Stores a key in the key management service.
+    /// - Parameters:
+    ///   - key: The key to be stored.
+    ///   - keyType: The type of the key (public or private).
+    /// - Throws: An error if the key storage fails.
     func storeKey(_ key: String, keyType: KeyType) throws
 
-    /// Retrieves a RSA key based on its identifier and type.
+    /// Retrieves a key from the key management service.
     /// - Parameters:
-    ///   - identifier: The unique identifier of the key.
-    ///   - keyType: The type of key (public or private).
-    /// - Returns: The requested RSAKey.
-    /// - Throws: An error if retrieving the key fails.
-    func retrieveKey(identifier: String, keyType: KeyType) throws -> RSAKey
+    ///   - identifier: The identifier of the key to be retrieved.
+    ///   - keyType: The type of the key (public or private).
+    /// - Returns: The key data.
+    /// - Throws: An error if the key retrieval fails.
+    func retrieveKey(identifier: String, keyType: KeyType) throws -> Data
 
     /// Retrieves the identifier of the public key.
     /// - Returns: The identifier of the public key.
-    /// - Throws: An error if the operation fails.
+    /// - Throws: An error if the public key identifier retrieval fails.
     func publicKeyIdentifier() throws -> String
 
-    /// Converts a RSAKey to a JSON Web Key (JWK) format.
-    /// - Parameter key: The RSAKey to convert.
-    /// - Returns: The corresponding JWK.
+    /// Converts a public key to a JSON Web Key (JWK) representation.
+    /// - Parameter publicKey: The public key data.
+    /// - Returns: The JWK representation of the public key.
     /// - Throws: An error if the conversion fails.
-    func convertToJWK(_ key: RSAKey) throws -> JWK 
+    func convertToJWK(_ publicKey: Data) throws -> [JWK]
 
     /// Retrieves the identifier of the private key.
     /// - Returns: The identifier of the private key.
-    /// - Throws: An error if the operation fails.
+    /// - Throws: An error if the private key identifier retrieval fails.
     func privateKeyIdentifier() throws -> String
-
-    /// Rotates the keys by generating a new key and optionally deprecating the old one.
-    /// - Parameter deprecateOld: A boolean indicating whether to deprecate the old key.
+    
+    /// Rotates the key by generating a new key pair and optionally deprecating the old key.
+    /// - Parameter deprecateOld: A flag indicating whether to deprecate the old key.
     /// - Throws: An error if the key rotation fails.
     func rotateKey(deprecateOld: Bool) throws
 
-    /// Deletes a RSA key based on its identifier.
-    /// - Parameter identifier: The unique identifier of the key to be deleted.
-    /// - Throws: An error if the deletion fails.
+    /// Deletes a key from the key management service.
+    /// - Parameter identifier: The identifier of the key to be deleted.
+    /// - Throws: An error if the key deletion fails.
     func deleteKey(identifier: String) throws
 
-    /// Lists all available RSA keys.
-    /// - Returns: An array of identifiers of the available RSA keys.
-    /// - Throws: An error if the operation fails.
+    /// Lists all the keys stored in the key management service.
+    /// - Returns: An array of key identifiers.
+    /// - Throws: An error if the key listing fails.
     func listKeys() throws -> [String]
 }
