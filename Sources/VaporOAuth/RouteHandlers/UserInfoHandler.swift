@@ -20,7 +20,7 @@ struct UserInfoHandler {
         }
         
         // Create JWTSigner from JWTSignerService
-        let jwtSigner = try jwtSignerService.makeJWTSigner()
+        let jwtSigner = try await jwtSignerService.makeJWTSigner()
         
         
         // Verify the token and extract the payload

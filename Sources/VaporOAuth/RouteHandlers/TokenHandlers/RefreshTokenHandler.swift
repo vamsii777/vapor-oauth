@@ -61,7 +61,7 @@ struct RefreshTokenHandler {
             scopes: scopesRequested, accessTokenExpiryTime: expiryTime
         )
 
-        return try tokenResponseGenerator.createResponse(accessToken: accessToken.0, refreshToken: accessToken.1,
+        return try await tokenResponseGenerator.createResponse(accessToken: accessToken.0, refreshToken: accessToken.1,
                                                          expires: expiryTime, scope: scopesString)
     }
 

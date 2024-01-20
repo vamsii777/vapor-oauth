@@ -66,7 +66,7 @@ struct DeviceCodeTokenHandler {
             accessTokenExpiryTime: expiryTime
         )
 
-        return try tokenResponseGenerator.createResponse(accessToken: access, refreshToken: refresh, expires: Int(expiryTime),
+        return try await tokenResponseGenerator.createResponse(accessToken: access, refreshToken: refresh, expires: Int(expiryTime),
                                                          scope: deviceCode.scopes?.joined(separator: " "))
     }
 }
