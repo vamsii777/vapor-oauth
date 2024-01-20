@@ -15,10 +15,13 @@ public protocol KeyManagementService: Sendable  {
     func generateKey() throws -> RSAKey
 
     /// Stores a RSA key.
-    /// - Parameter key: The RSAKey to be stored.
+    /// - Parameter key: The RSAKey to store.
     /// - Parameter keyType: The type of key (public or private).
     /// - Throws: An error if storing the key fails.
     func storeKey(_ key: RSAKey, keyType: KeyType) throws
+    func storeKey(_ key: JWK, keyType: KeyType) throws
+    func storeKey(_ key: String, keyType: KeyType) throws
+    func storeKey(_ key: Data, keyType: KeyType) throws
 
     /// Retrieves a RSA key based on its identifier and type.
     /// - Parameters:
