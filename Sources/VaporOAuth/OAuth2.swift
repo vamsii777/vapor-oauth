@@ -78,7 +78,7 @@ public struct OAuth2: LifecycleHandler {
             clientValidator: clientValidator
         )
         
-        let userInfoHandler = UserInfoHandler(jwtSignerService: jwtSignerService, userManager: userManager)
+        let userInfoHandler = UserInfoHandler(jwtSignerService: jwtSignerService, userManager: userManager, environment: app.environment)
                 
         let resourceServerAuthenticator = ResourceServerAuthenticator(resourceServerRetriever: resourceServerRetriever)
         
