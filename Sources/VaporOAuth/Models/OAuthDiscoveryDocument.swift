@@ -1,70 +1,46 @@
 import Vapor
 
 public struct OAuthDiscoveryDocument: Content {
-    public let issuer: String
-    public let authorizationEndpoint: String
-    public let tokenEndpoint: String
-    public let userInfoEndpoint: String
-    public let revocationEndpoint: String
-    public let introspectionEndpoint: String
-    public let jwksURI: String
-    public let registrationEndpoint: String
-    public let scopesSupported: [String]
-    public let responseTypesSupported: [String]
-    public let grantTypesSupported: [String]
-    public let tokenEndpointAuthMethodsSupported: [String]
-    public let tokenEndpointAuthSigningAlgValuesSupported: [String]
-    public let serviceDocumentation: String
-    public let uiLocalesSupported: [String]
-    public let opPolicyURI: String
-    public let opTosURI: String
-    public let subjectTypesSupported: [String]
-    public let claimsSupported: [String]
-
+    
+    public var issuer: String?
+    public var authorizationEndpoint: String?
+    public var tokenEndpoint: String?
+    public var userInfoEndpoint: String?
+    public var revocationEndpoint: String?
+    public var introspectionEndpoint: String?
+    public var jwksURI: String?
+    public var registrationEndpoint: String?
+    public var scopesSupported: [String]?
+    public var responseTypesSupported: [String]?
+    public var responseModesSupported: [String]?
+    public var grantTypesSupported: [String]?
+    public var acrValuesSupported: [String]?
+    public var idTokenEncryptionAlgValuesSupported: [String]?
+    public var idTokenEncryptionEncValuesSupported: [String]?
+    public var userinfoSigningAlgValuesSupported: [String]?
+    public var userinfoEncryptionAlgValuesSupported: [String]?
+    public var userinfoEncryptionEncValuesSupported: [String]?
+    public var requestObjectSigningAlgValuesSupported: [String]?
+    public var requestObjectEncryptionAlgValuesSupported: [String]?
+    public var requestObjectEncryptionEncValuesSupported: [String]?
+    public var tokenEndpointAuthMethodsSupported: [String]?
+    public var tokenEndpointAuthSigningAlgValuesSupported: [String]?
+    public var displayValuesSupported: [String]?
+    public var claimTypesSupported: [String]?
+    public var claimsSupported: [String]?
+    public var serviceDocumentation: String?
+    public var claimsLocalesSupported: [String]?
+    public var uiLocalesSupported: [String]?
+    public var claimsParameterSupported: Bool?
+    public var requestParameterSupported: Bool?
+    public var requestUriParameterSupported: Bool?
+    public var requireRequestUriRegistration: Bool?
+    public var opPolicyURI: String?
+    public var opTosURI: String?
     public var extend: [String: Any] = [:]
-
-    public init(
-        issuer: String,
-        authorizationEndpoint: String,
-        tokenEndpoint: String,
-        userInfoEndpoint: String,
-        revocationEndpoint: String,
-        introspectionEndpoint: String,
-        jwksURI: String,
-        registrationEndpoint: String,
-        scopesSupported: [String],
-        responseTypesSupported: [String],
-        grantTypesSupported: [String],
-        tokenEndpointAuthMethodsSupported: [String],
-        tokenEndpointAuthSigningAlgValuesSupported: [String],
-        serviceDocumentation: String,
-        uiLocalesSupported: [String],
-        opPolicyURI: String,
-        opTosURI: String,
-        subjectTypesSupported: [String],
-        claimsSupported: [String]
-    ) {
-        self.issuer = issuer
-        self.authorizationEndpoint = authorizationEndpoint
-        self.tokenEndpoint = tokenEndpoint
-        self.userInfoEndpoint = userInfoEndpoint
-        self.revocationEndpoint = revocationEndpoint
-        self.introspectionEndpoint = introspectionEndpoint
-        self.jwksURI = jwksURI
-        self.registrationEndpoint = registrationEndpoint
-        self.scopesSupported = scopesSupported
-        self.responseTypesSupported = responseTypesSupported
-        self.grantTypesSupported = grantTypesSupported
-        self.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported
-        self.tokenEndpointAuthSigningAlgValuesSupported = tokenEndpointAuthSigningAlgValuesSupported
-        self.serviceDocumentation = serviceDocumentation
-        self.uiLocalesSupported = uiLocalesSupported
-        self.opPolicyURI = opPolicyURI
-        self.opTosURI = opTosURI
-        self.subjectTypesSupported = subjectTypesSupported
-        self.claimsSupported = claimsSupported
-    }
-
+    
+   
+    
     // Exclude 'extend' property from encoding
     private enum CodingKeys: String, CodingKey {
         case issuer
@@ -77,14 +53,30 @@ public struct OAuthDiscoveryDocument: Content {
         case registrationEndpoint
         case scopesSupported
         case responseTypesSupported
+        case responseModesSupported
         case grantTypesSupported
+        case acrValuesSupported
+        case idTokenEncryptionAlgValuesSupported
+        case idTokenEncryptionEncValuesSupported
+        case userinfoSigningAlgValuesSupported
+        case userinfoEncryptionAlgValuesSupported
+        case userinfoEncryptionEncValuesSupported
+        case requestObjectSigningAlgValuesSupported
+        case requestObjectEncryptionAlgValuesSupported
+        case requestObjectEncryptionEncValuesSupported
         case tokenEndpointAuthMethodsSupported
         case tokenEndpointAuthSigningAlgValuesSupported
+        case displayValuesSupported
+        case claimTypesSupported
+        case claimsSupported
         case serviceDocumentation
+        case claimsLocalesSupported
         case uiLocalesSupported
+        case claimsParameterSupported
+        case requestParameterSupported
+        case requestUriParameterSupported
+        case requireRequestUriRegistration
         case opPolicyURI
         case opTosURI
-        case subjectTypesSupported
-        case claimsSupported
     }
 }
