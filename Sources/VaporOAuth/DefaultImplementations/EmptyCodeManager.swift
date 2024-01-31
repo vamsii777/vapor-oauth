@@ -10,7 +10,7 @@ public struct EmptyCodeManager: CodeManager {
         userID: String,
         clientID: String,
         redirectURI: String,
-        scopes: [String]?,
+        scopes: String?,
         codeChallenge: String?,
         codeChallengeMethod: String?,
         nonce: String?
@@ -24,7 +24,7 @@ public struct EmptyCodeManager: CodeManager {
         return nil
     }
 
-    public func generateDeviceCode(userID: String, clientID: String, scopes: [String]?) async throws -> String {
+    public func generateDeviceCode(userID: String, clientID: String, scopes: String?) async throws -> String {
         return ""
     }
 

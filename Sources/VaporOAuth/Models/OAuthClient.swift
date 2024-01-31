@@ -4,7 +4,7 @@ public struct OAuthClient {
     public let clientID: String
     public let redirectURIs: [String]?
     public let clientSecret: String?
-    public let validScopes: [String]?
+    public let validScopes: String?
     public let confidentialClient: Bool?
     public let firstParty: Bool
     public let allowedGrantType: OAuthFlowType
@@ -15,7 +15,7 @@ public struct OAuthClient {
 
     public var extend: Vapor.Extend = .init()
 
-    public init(clientID: String, redirectURIs: [String]?, clientSecret: String? = nil, validScopes: [String]? = nil,
+    public init(clientID: String, redirectURIs: [String]?, clientSecret: String? = nil, validScopes: String? = nil,
                 confidential: Bool? = nil, firstParty: Bool = false, allowedGrantType: OAuthFlowType,
                 postLogoutRedirectURIs: [String]? = nil, idTokenSignedResponseAlg: String? = "RS256") {
         self.clientID = clientID

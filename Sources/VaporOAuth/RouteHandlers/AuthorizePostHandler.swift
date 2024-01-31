@@ -8,7 +8,7 @@ struct AuthorizePostRequest {
     let clientID: String
     let responseType: String
     let csrfToken: String
-    let scopes: [String]?
+    let scopes: String?
     let codeChallenge: String?
     let codeChallengeMethod: String?
     let nonce: String?  // OpenID Connect specific
@@ -38,6 +38,7 @@ struct AuthorizePostHandler {
         }
         
         if requestObject.approveApplication {
+            
             if requestObject.responseType == ResponseType.token {
                 let accessToken = try await tokenManager.generateAccessToken(
                     clientID: requestObject.clientID,
@@ -115,7 +116,7 @@ struct AuthorizePostHandler {
         
         if let requestedScopes = requestObject.scopes {
             if !requestedScopes.isEmpty {
-                redirectURI += "&scope=\(requestedScopes.joined(separator: "+"))"
+                redirectURI += "&scope=\(requestedScopes)"
             }
         }
         
@@ -153,13 +154,8 @@ struct AuthorizePostHandler {
             throw Abort(.badRequest)
         }
         
-        let scopes: [String]?
-        
-        if let scopeQuery: String = request.query[OAuthRequestParameters.scope] {
-            scopes = scopeQuery.components(separatedBy: " ")
-        } else {
-            scopes = nil
-        }
+        // Extract scopes as a single string
+        let scopesString: String? = request.query[OAuthRequestParameters.scope]
         
         // Extract PKCE parameters
         let codeChallenge: String? = request.content[OAuthRequestParameters.codeChallenge]
@@ -167,7 +163,6 @@ struct AuthorizePostHandler {
         
         // Extract nonce for OpenID Connect from the request content
         let nonce: String? = request.content[OAuthRequestParameters.nonce]
-        
         
         return AuthorizePostRequest(
             user: user,
@@ -177,7 +172,7 @@ struct AuthorizePostHandler {
             clientID: clientID,
             responseType: responseType,
             csrfToken: csrfToken,
-            scopes: scopes,
+            scopes: scopesString, // Pass the scope string directly
             codeChallenge: codeChallenge,
             codeChallengeMethod: codeChallengeMethod,
             nonce: nonce

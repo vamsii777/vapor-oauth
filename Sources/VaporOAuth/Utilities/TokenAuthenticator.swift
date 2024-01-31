@@ -10,17 +10,21 @@ public struct TokenAuthenticator {
         return true
     }
 
-    func validateAccessToken(_ accessToken: AccessToken, requiredScopes: [String]?) -> Bool {
-        guard let scopes = requiredScopes else {
+    func validateAccessToken(_ accessToken: AccessToken, requiredScopes: String?) -> Bool {
+        guard let requiredScopesString = requiredScopes else {
             return true
         }
 
-        guard let accessTokenScopes = accessToken.scopes else {
+        let requiredScopesArray = requiredScopesString.components(separatedBy: " ")
+
+        guard let accessTokenScopesString = accessToken.scopes else {
             return false
         }
 
-        for scope in scopes {
-            if !accessTokenScopes.contains(scope) {
+        let accessTokenScopesArray = accessTokenScopesString.components(separatedBy: " ")
+
+        for scope in requiredScopesArray {
+            if !accessTokenScopesArray.contains(scope) {
                 return false
             }
         }

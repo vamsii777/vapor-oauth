@@ -1,9 +1,9 @@
 import Vapor
 
 public struct OAuth2TokenIntrospectionMiddleware: AsyncMiddleware {
-    let requiredScopes: [String]?
+    let requiredScopes: String?
 
-    public init(requiredScopes: [String]?) {
+    public init(requiredScopes: String?) {
         self.requiredScopes = requiredScopes
     }
 

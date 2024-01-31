@@ -101,13 +101,9 @@ struct AuthorizeGetHandler {
             return (try await authorizeHandler.handleAuthorizationError(.invalidRedirectURI), nil)
         }
         
-        let scopes: [String]
-        
-        if let scopeQuery: String = request.query[OAuthRequestParameters.scope] {
-            scopes = scopeQuery.components(separatedBy: " ")
-        } else {
-            scopes = []
-        }
+        // Extract scopes as a single string
+        let scopes: String = request.query[OAuthRequestParameters.scope] ?? ""
+
         
         let state: String? = request.query[OAuthRequestParameters.state]
         
@@ -188,7 +184,7 @@ struct AuthorizeGetHandler {
 struct AuthorizationGetRequestObject {
     let clientID: String
     let redirectURIString: String
-    let scopes: [String]
+    let scopes: String
     let state: String?
     let responseType: String
     let codeChallenge: String?

@@ -28,8 +28,7 @@ struct TokenIntrospectionHandler {
             return try createTokenResponse(active: false, expiryDate: nil, clientID: nil)
         }
 
-        let scopes = token.scopes
-        
+        let scopes = token.scopes 
         var user: OAuthUser? = nil
 
         if let userID = token.userID {

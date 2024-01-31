@@ -5,7 +5,7 @@ public protocol TokenManager: Sendable {
     func generateTokens(
         clientID: String,
         userID: String?,
-        scopes: [String]?,
+        scopes: String?,
         accessTokenExpiryTime: Int,
         idTokenExpiryTime: Int,
         nonce: String?
@@ -15,7 +15,7 @@ public protocol TokenManager: Sendable {
     func generateAccessToken(
         clientID: String,
         userID: String?,
-        scopes: [String]?,
+        scopes: String?,
         expiryTime: Int
     ) async throws -> AccessToken
     
@@ -23,7 +23,7 @@ public protocol TokenManager: Sendable {
     func generateAccessRefreshTokens(
         clientID: String,
         userID: String?,
-        scopes: [String]?,
+        scopes: String?,
         accessTokenExpiryTime: Int
     ) async throws -> (AccessToken, RefreshToken)
     
@@ -34,13 +34,13 @@ public protocol TokenManager: Sendable {
     func getAccessToken(_ accessToken: String) async throws -> AccessToken?
     
     // Updates a refresh token, typically to change its scope.
-    func updateRefreshToken(_ refreshToken: RefreshToken, scopes: [String]) async throws
+    func updateRefreshToken(_ refreshToken: RefreshToken, scopes: String) async throws
     
     // Generates an ID token. Should be called after successful authentication.
     func generateIDToken(
         clientID: String,
         userID: String,
-        scopes: [String]?,
+        scopes: String?,
         expiryTime: Int,
         nonce: String?
     ) async throws -> IDToken

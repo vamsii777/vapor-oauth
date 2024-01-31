@@ -1,31 +1,29 @@
 import Vapor
 
 struct RefreshTokenHandler {
-
+    
     let scopeValidator: ScopeValidator
     let tokenManager: TokenManager
     let clientValidator: ClientValidator
     let tokenAuthenticator: TokenAuthenticator
     let tokenResponseGenerator: TokenResponseGenerator
-
+    
     func handleRefreshTokenRequest(_ request: Request) async throws -> Response {
-
+        
         let (errorResponseReturned, refreshTokenRequestReturned) = try await validateRefreshTokenRequest(request)
-
+        
         if let errorResponse = errorResponseReturned {
             return errorResponse
         }
-
+        
         guard let refreshTokenRequest = refreshTokenRequestReturned else {
             throw Abort(.internalServerError)
         }
-
-        let scopesString: String? = request.content[OAuthRequestParameters.scope]
-        var scopesRequested: [String]? = scopesString?.components(separatedBy: " ")
-
-        if let scopes = scopesRequested {
+        
+        var scopesString: String? = request.content[OAuthRequestParameters.scope]
+        
+        if let scopesString = scopesString {
             do {
-                let scopesString = scopes.joined(separator: " ")
                 try await scopeValidator.validateScope(clientID: refreshTokenRequest.clientID, scopes: scopesString)
             } catch ScopeError.invalid {
                 return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
@@ -34,10 +32,13 @@ struct RefreshTokenHandler {
                 return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                  description: "Request contained an unknown scope")
             }
-
-            if let tokenScopes = refreshTokenRequest.refreshToken.scopes {
-                for scope in scopes {
-                    if !tokenScopes.contains(scope) {
+            
+            if let tokenScopesString = refreshTokenRequest.refreshToken.scopes {
+                let tokenScopesArray = tokenScopesString.components(separatedBy: " ")
+                let requestedScopesArray = scopesString.components(separatedBy: " ")
+                
+                for scope in requestedScopesArray {
+                    if !tokenScopesArray.contains(scope) {
                         return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                          description: "Request contained elevated scopes")
                     }
@@ -48,39 +49,46 @@ struct RefreshTokenHandler {
                     description: "Request contained elevated scopes"
                 )
             }
-
-            try await tokenManager.updateRefreshToken(refreshTokenRequest.refreshToken, scopes: scopes)
+            
+            try await tokenManager.updateRefreshToken(refreshTokenRequest.refreshToken, scopes: scopesString)
         } else {
-            scopesRequested = refreshTokenRequest.refreshToken.scopes?.components(separatedBy: " ")
+            // No new scopes requested, use the scopes from the existing refresh token
+            scopesString = refreshTokenRequest.refreshToken.scopes
         }
-
+        
+        
         let expiryTime = 3600
-        let accessToken  = try await tokenManager.generateAccessRefreshTokens(
+        let accessToken = try await tokenManager.generateAccessRefreshTokens(
             clientID: refreshTokenRequest.clientID,
             userID: refreshTokenRequest.refreshToken.userID,
-            scopes: scopesRequested, accessTokenExpiryTime: expiryTime
+            scopes: scopesString,
+            accessTokenExpiryTime: expiryTime
         )
-
-        return try await tokenResponseGenerator.createResponse(accessToken: accessToken.0, refreshToken: accessToken.1,
-                                                         expires: expiryTime, scope: scopesString)
+        
+        return try await tokenResponseGenerator.createResponse(
+            accessToken: accessToken.0,
+            refreshToken: accessToken.1,
+            expires: expiryTime,
+            scope: scopesString
+        )
     }
-
+    
     private func validateRefreshTokenRequest(_ request: Request) async throws -> (Response?, RefreshTokenRequest?) {
         guard let clientID: String = request.content[OAuthRequestParameters.clientID] else {
             let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                                           description: "Request was missing the 'client_id' parameter")
             return (errorResponse, nil)
         }
-
+        
         guard let clientSecret: String = request.content[OAuthRequestParameters.clientSecret] else {
             let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                                           description: "Request was missing the 'client_secret' parameter")
             return (errorResponse, nil)
         }
-
+        
         do {
             try await clientValidator.authenticateClient(clientID: clientID, clientSecret: clientSecret,
-                                                   grantType: nil, checkConfidentialClient: true)
+                                                         grantType: nil, checkConfidentialClient: true)
         } catch ClientError.unauthorized {
             let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidClient,
                                                                           description: "Request had invalid client credentials",
@@ -92,20 +100,20 @@ struct RefreshTokenHandler {
                                                                           description: errorDescription)
             return (errorResponse, nil)
         }
-
+        
         guard let refreshTokenString: String = request.content[OAuthRequestParameters.refreshToken] else {
             let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                                           description: "Request was missing the 'refresh_token' parameter")
             return (errorResponse, nil)
         }
-
+        
         guard let refreshToken = try await tokenManager.getRefreshToken(refreshTokenString),
-            tokenAuthenticator.validateRefreshToken(refreshToken, clientID: clientID) else {
-                let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidGrant,
-                                                                              description: "The refresh token is invalid")
-                return (errorResponse, nil)
+              tokenAuthenticator.validateRefreshToken(refreshToken, clientID: clientID) else {
+            let errorResponse = try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidGrant,
+                                                                          description: "The refresh token is invalid")
+            return (errorResponse, nil)
         }
-
+        
         let refreshTokenRequest = RefreshTokenRequest(clientID: clientID, clientSecret: clientSecret, refreshToken: refreshToken)
         return (nil, refreshTokenRequest)
     }
