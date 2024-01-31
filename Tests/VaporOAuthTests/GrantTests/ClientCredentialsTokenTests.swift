@@ -24,7 +24,7 @@ class ClientCredentialsTokenTests: XCTestCase {
             clientID: testClientID,
             redirectURIs: nil,
             clientSecret: testClientSecret,
-            validScopes: [scope1, scope2],
+            validScopes: "\(scope1)\(scope2)",
             confidential: true,
             allowedGrantType: .clientCredentials
         )
@@ -153,8 +153,8 @@ class ClientCredentialsTokenTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(accessToken.scopes ?? [], ["email", "create"])
-        XCTAssertEqual(refreshToken.scopes ?? [], ["email", "create"])
+        XCTAssertEqual(accessToken.scopes, "email create")
+        XCTAssertEqual(refreshToken.scopes, "email create")
     }
 
     func testCorrectErrorWhenReqeustingScopeApplicationDoesNotHaveAccessTo() async throws {
@@ -225,7 +225,7 @@ class ClientCredentialsTokenTests: XCTestCase {
 
     func testClientIDSetOnAccessTokenCorrectly() async throws {
         let newClientString = "a-new-client"
-        let newClient = OAuthClient(clientID: newClientString, redirectURIs: nil, clientSecret: testClientSecret, validScopes: [scope1, scope2], confidential: true, allowedGrantType: .clientCredentials)
+        let newClient = OAuthClient(clientID: newClientString, redirectURIs: nil, clientSecret: testClientSecret, validScopes: "\(scope1)\(scope2)", confidential: true, allowedGrantType: .clientCredentials)
         fakeClientGetter.validClients[newClientString] = newClient
 
         let response = try await getClientCredentialsResponse(clientID: newClientString)
@@ -284,7 +284,7 @@ class ClientCredentialsTokenTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(refreshToken.scopes ?? [], ["email", "create"])
+        XCTAssertEqual(refreshToken.scopes, "email create")
     }
 
     func testNoUserIDSetOnRefreshToken() async throws {

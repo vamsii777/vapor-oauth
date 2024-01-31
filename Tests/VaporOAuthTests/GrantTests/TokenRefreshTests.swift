@@ -33,7 +33,7 @@ class TokenRefreshTests: XCTestCase {
             clientID: testClientID,
             redirectURIs: nil,
             clientSecret: testClientSecret,
-            validScopes: [scope1, scope2, scope4],
+            validScopes: "\(scope1)\(scope2)\(scope4)",
             confidential: true,
             allowedGrantType: .authorization
         )
@@ -42,7 +42,7 @@ class TokenRefreshTests: XCTestCase {
             jti: refreshTokenString,
             clientID: testClientID,
             userID: nil,
-            scopes: [scope1, scope2], exp: Date().addingTimeInterval(60)
+            scopes: "\(scope1)\(scope2)", exp: Date().addingTimeInterval(60)
         )
         fakeTokenManager.refreshTokens[refreshTokenString] = validRefreshToken
     }
@@ -244,6 +244,8 @@ class TokenRefreshTests: XCTestCase {
     }
 
     func testLoweringScopeOnRefreshSetsScopeCorrectlyOnAccessAndRefreshTokens() async throws {
+        let scope1 = "email"  // Define the scope1 string as needed
+
         let response = try await getTokenResponse(scope: scope1)
 
         let responseJSON = try JSONDecoder().decode(SuccessResponse.self, from: response.body)
@@ -258,19 +260,23 @@ class TokenRefreshTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(accessToken.scopes ?? [], [scope1])
+        // Compare accessToken.scopes directly to the string
+        XCTAssertEqual(accessToken.scopes, scope1)
 
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(responseJSON.scope, scope1)
         XCTAssertEqual(response.headers.cacheControl?.noStore, true)
         XCTAssertEqual(response.headers[HTTPHeaders.Name.pragma], ["no-cache"])
 
+        let refreshTokenString = responseJSON.refreshToken ?? ""
+
         guard let refreshToken = fakeTokenManager.getRefreshToken(refreshTokenString) else {
             XCTFail()
             return
         }
 
-        XCTAssertEqual(refreshToken.scopes ?? [], [scope1])
+        // Compare refreshToken.scopes directly to the string
+        XCTAssertEqual(refreshToken.scopes, scope1)
     }
 
     func testNotRequestingScopeOnRefreshDoesNotAlterOriginalScope() async throws {
@@ -291,14 +297,15 @@ class TokenRefreshTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(accessToken.scopes!, originalScopes ?? [])
-        XCTAssertEqual(refreshToken.scopes!, originalScopes!)
-
+        // Directly compare the string values of scopes
+        XCTAssertEqual(accessToken.scopes, originalScopes)
+        XCTAssertEqual(refreshToken.scopes, originalScopes)
     }
 
     func testRequestingTheSameScopeWhenRefreshingWorksCorrectlyAndReturnsResult() async throws {
         let scopesToRequest = validRefreshToken.scopes
-        let response = try await getTokenResponse(scope: scopesToRequest?.joined(separator: " "))
+
+        let response = try await getTokenResponse(scope: scopesToRequest)
 
         let responseJSON = try JSONDecoder().decode(SuccessResponse.self, from: response.body)
 
@@ -313,8 +320,9 @@ class TokenRefreshTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(accessToken.scopes!, scopesToRequest ?? [])
-        XCTAssertEqual(refreshToken.scopes!, scopesToRequest!)
+        // Directly compare the string values of scopes
+        XCTAssertEqual(accessToken.scopes, scopesToRequest)
+        XCTAssertEqual(refreshToken.scopes, scopesToRequest)
     }
 
     func testErrorWhenRequestingScopeWithNoScopesOriginallyRequestedOnRefreshToken() async throws {
@@ -337,7 +345,7 @@ class TokenRefreshTests: XCTestCase {
         let userID = "abcdefg-123456"
         let accessToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let userIDRefreshTokenString = "ASHFUIEWHFIHEWIUF"
-        let userIDRefreshToken = FakeRefreshToken(jti: userIDRefreshTokenString, clientID: testClientID, userID: userID, scopes: [scope1, scope2], exp: Date().addingTimeInterval(60))
+        let userIDRefreshToken = FakeRefreshToken(jti: userIDRefreshTokenString, clientID: testClientID, userID: userID, scopes: "\(scope1)\(scope2)", exp: Date().addingTimeInterval(60))
         fakeTokenManager.refreshTokens[userIDRefreshTokenString] = userIDRefreshToken
         fakeTokenManager.accessTokenToReturn = accessToken
         _ = try await getTokenResponse(refreshToken: userIDRefreshTokenString)

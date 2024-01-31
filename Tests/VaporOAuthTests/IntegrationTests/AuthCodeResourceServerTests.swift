@@ -26,7 +26,7 @@ class AuthCodeResourceServerTests: XCTestCase {
             clientID: newClientID,
             redirectURIs: [redirectURI],
             clientSecret: clientSecret,
-            validScopes: [scope, scope2],
+            validScopes: "scope scope2",
             confidential: true,
             firstParty: true,
             allowedGrantType: .authorization
@@ -250,7 +250,7 @@ class AuthCodeResourceServerTests: XCTestCase {
             jti: tokenID,
             clientID: newClientID,
             userID: newUser.id,
-            scopes: ["invalid"],
+            scopes: "invalid",
             expiryTime: Date().addingTimeInterval(3600)
         )
         fakeTokenManager.accessTokens[tokenID] = token
@@ -264,7 +264,7 @@ class AuthCodeResourceServerTests: XCTestCase {
 
     func testAccessingProtectedRouteWithOneInvalidScopeOneValidReturns401() async throws {
         let tokenID = "new-token-ID-invalid-scope"
-        let token = FakeAccessToken(jti: tokenID, clientID: newClientID, userID: newUser.id, scopes: ["invalid", scope], expiryTime: Date().addingTimeInterval(3600))
+        let token = FakeAccessToken(jti: tokenID, clientID: newClientID, userID: newUser.id, scopes: "invalid\(scope)", expiryTime: Date().addingTimeInterval(3600))
         fakeTokenManager.accessTokens[tokenID] = token
 
         try app.test(.GET, "/protected/", beforeRequest: { req in
@@ -276,7 +276,7 @@ class AuthCodeResourceServerTests: XCTestCase {
 
     func testAccessingProtectedRouteWithLowercaseHeaderWorks() async throws {
         let tokenID = "new-token-ID-invalid-scope"
-        let token = FakeAccessToken(jti: tokenID, clientID: newClientID, userID: newUser.id, scopes: [scope, scope2], expiryTime: Date().addingTimeInterval(3600))
+        let token = FakeAccessToken(jti: tokenID, clientID: newClientID, userID: newUser.id, scopes: "\(scope)\(scope2)", expiryTime: Date().addingTimeInterval(3600))
         fakeTokenManager.accessTokens[tokenID] = token
 
         try app.test(.GET, "/protected/", beforeRequest: { req in
@@ -288,7 +288,7 @@ class AuthCodeResourceServerTests: XCTestCase {
 
     func testThatAccessingProtectedRouteWithExpiredTokenReturns401() async throws {
         let tokenID = "new-token-ID-invalid-scope"
-        let token = FakeAccessToken(jti: tokenID, clientID: newClientID, userID: newUser.id, scopes: [scope, scope2], expiryTime: Date().addingTimeInterval(-3600))
+        let token = FakeAccessToken(jti: tokenID, clientID: newClientID, userID: newUser.id, scopes: "\(scope)\(scope2)", expiryTime: Date().addingTimeInterval(-3600))
         fakeTokenManager.accessTokens[tokenID] = token
 
         try app.test(.GET, "/protected/", beforeRequest: { req in
@@ -385,7 +385,7 @@ class AuthCodeResourceServerTests: XCTestCase {
 
 struct TestResourceController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let oauthMiddleware = OAuth2ScopeMiddleware(requiredScopes: ["user", "email"])
+        let oauthMiddleware = OAuth2ScopeMiddleware(requiredScopes: "user email")
         let protected = routes.grouped(oauthMiddleware)
 
         protected.get("protected", use: protectedHandler)
@@ -409,7 +409,7 @@ struct TestResourceController: RouteCollection {
 struct RemoteResourceController: RouteCollection {
     let client: Client
     func boot(routes: RoutesBuilder) throws {
-        let oauthMiddleware = OAuth2TokenIntrospectionMiddleware(requiredScopes: ["user", "email"])
+        let oauthMiddleware = OAuth2TokenIntrospectionMiddleware(requiredScopes: "user email")
         let protected = routes.grouped(oauthMiddleware)
 
         protected.get("protected", use: protectedHandler)

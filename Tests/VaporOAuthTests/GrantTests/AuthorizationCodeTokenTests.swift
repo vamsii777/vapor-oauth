@@ -39,7 +39,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
     let testClientSecret = "ABCDEFGHIJK"
     let testCodeID = "12345ABCD"
     let userID = "the-user-id"
-    let scopes = ["email", "create"]
+    let scopes = "email create"
     let testCodeChallenge = "testCodeChallenge"
     let testCodeChallengeMethod = "S256"
 
@@ -212,7 +212,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
             redirectURI: "https://test.redirect.uri",
             userID: "testUserID",
             expiryDate: Date().addingTimeInterval(3600), // 1 hour in the future
-            scopes: ["testScope"],
+            scopes: "testScope",
             codeChallenge: nil, // No code challenge
             codeChallengeMethod: nil
         )
@@ -241,7 +241,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
             redirectURI: "https://test.redirect.uri",
             userID: "testUserID",
             expiryDate: Date().addingTimeInterval(3600), // 1 hour in the future
-            scopes: ["testScope"],
+            scopes: "testScope",
             codeChallenge: codeChallenge, // Provided code challenge
             codeChallengeMethod: "S256"
         )
@@ -319,8 +319,8 @@ class AuthorizationCodeTokenTests: XCTestCase {
     func testThatCorrectResponseReceivedWhenCorrectRequestSent() async throws {
         let accessToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let refreshToken = "01234567890"
+        let scopes = "email create"  // Defined as a space-delimited string
 
-        
         fakeTokenManager.accessTokenToReturn = accessToken
         fakeTokenManager.refreshTokenToReturn = refreshToken
 
@@ -335,14 +335,15 @@ class AuthorizationCodeTokenTests: XCTestCase {
         XCTAssertEqual(responseJSON.expiresIn, 3600)
         XCTAssertEqual(responseJSON.accessToken, accessToken)
         XCTAssertEqual(responseJSON.refreshToken, refreshToken)
-        XCTAssertEqual(responseJSON.scope, "email create")
+        XCTAssertEqual(responseJSON.scope, scopes)
 
         guard let token = fakeTokenManager.getAccessToken(accessToken) else {
             XCTFail()
             return
         }
 
-        XCTAssertEqual(token.scopes ?? [], scopes)
+        // Directly compare the string values of scopes
+        XCTAssertEqual(token.scopes, scopes)
     }
 
     func testThatNoScopeReturnedIfNoneSetOnCode() async throws {
@@ -405,7 +406,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         let accessTokenString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         fakeTokenManager.accessTokenToReturn = accessTokenString
         let newCodeString = "new-code-string"
-        let scopes = ["oneScope", "aDifferentScope"]
+        let scopes = "oneScope aDifferentScope"
         let newCode = OAuthCode(codeID: newCodeString, clientID: testClientID, redirectURI: testClientRedirectURI, userID: "user-id", expiryDate: Date().addingTimeInterval(60), scopes: scopes, codeChallenge: nil, codeChallengeMethod: nil)
         fakeCodeManager.codes[newCodeString] = newCode
 
@@ -416,7 +417,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(accessToken.scopes ?? [], scopes)
+        XCTAssertEqual(accessToken.scopes, scopes)
     }
 
     func testTokenHasExpiryTimeSetOnIt() async throws {
@@ -491,7 +492,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(refreshToken.scopes ?? [], scopes)
+        XCTAssertEqual(refreshToken.scopes, scopes)
     }
 
     // MARK: - Private

@@ -6,7 +6,7 @@ class CapturingAuthoriseHandler: AuthorizeHandler {
     private(set) var responseType: String?
     private(set) var clientID: String?
     private(set) var redirectURI: URI?
-    private(set) var scope: [String]?
+    private(set) var scope: String?
     private(set) var state: String?
     private(set) var csrfToken: String?
     // Add PKCE parameters

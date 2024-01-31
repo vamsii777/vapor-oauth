@@ -114,7 +114,7 @@ class TokenIntrospectionTests: XCTestCase {
 
     func testThatScopeReturnedInReponseIfTokenHasScope() async throws {
         let tokenString = "VALID_TOKEN"
-        let validToken = FakeAccessToken(jti: tokenString, clientID: clientID, userID: nil, scopes: ["email", "profile"], expiryTime: Date().addingTimeInterval(60))
+        let validToken = FakeAccessToken(jti: tokenString, clientID: clientID, userID: nil, scopes: "email profile", expiryTime: Date().addingTimeInterval(60))
         fakeTokenManager.accessTokens[tokenString] = validToken
 
         let response = try await getInfoResponse(token: tokenString)
