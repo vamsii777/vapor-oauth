@@ -357,7 +357,6 @@ class PasswordGrantTokenTests: XCTestCase {
         }
 
         XCTAssertEqual(refreshToken.scopes, "email create")
-        XCTAssertEqual(refreshToken.scopes, "email create")
     }
 
     func testUserIDSetOnRefreshToken() async throws {
