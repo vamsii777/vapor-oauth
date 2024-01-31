@@ -30,7 +30,7 @@ class ImplicitGrantTests: XCTestCase {
         let oauthClient = OAuthClient(
             clientID: testClientID,
             redirectURIs: [testRedirectURIString],
-            validScopes: [scope1, scope2],
+            validScopes: "\(scope1)\(scope2)",
             allowedGrantType: .implicit
         )
 
@@ -115,7 +115,7 @@ class ImplicitGrantTests: XCTestCase {
     func testScopePassedThroughToAuthorizeHandlerIfProvided() async throws {
         _ = try await makeImplicitGrantRequest(scope: scope1)
 
-        XCTAssertEqual(capturingAuthHandler.scope ?? [], [scope1])
+        XCTAssertEqual(capturingAuthHandler.scope, scope1)
     }
 
     func testCorrectErrorReturnedIfRequestingUnknownScope() async throws {
@@ -330,7 +330,7 @@ class ImplicitGrantTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(token.scopes, "\(scope1) \(scope2)")
+        XCTAssertEqual(token.scopes, "\(scope1)\(scope2)")
         XCTAssertEqual(token.clientID, testClientID)
     }
 

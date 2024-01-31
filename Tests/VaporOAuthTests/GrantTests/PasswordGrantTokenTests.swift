@@ -45,7 +45,7 @@ class PasswordGrantTokenTests: XCTestCase {
             clientID: testClientID,
             redirectURIs: nil,
             clientSecret: testClientSecret,
-            validScopes: [scope1, scope2],
+            validScopes: "\(scope1)\(scope2)",
             firstParty: true,
             allowedGrantType: .password
         )
@@ -229,8 +229,8 @@ class PasswordGrantTokenTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(accessToken.scopes, "email create")
-        XCTAssertEqual(refreshToken.scopes, "email create")
+        XCTAssertEqual(accessToken.scopes, scope)
+        XCTAssertEqual(refreshToken.scopes, scope)
     }
 
     func testCorrectErrorWhenReqeustingScopeApplicationDoesNotHaveAccessTo() async throws {
@@ -356,6 +356,7 @@ class PasswordGrantTokenTests: XCTestCase {
             return
         }
 
+        XCTAssertEqual(refreshToken.scopes, "email create")
         XCTAssertEqual(refreshToken.scopes, "email create")
     }
 

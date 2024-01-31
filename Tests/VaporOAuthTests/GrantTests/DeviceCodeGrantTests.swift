@@ -45,7 +45,7 @@ class DeviceCodeTokenTests: XCTestCase {
     let testClientID = "1234567890"
     let testDeviceCodeID = "DEVICE_CODE_ID"
     let userID = "the-user-id"
-    let scopes = ["email", "create"]
+    let scopes = "email create"
     
     // MARK: - Overrides
     
@@ -137,14 +137,16 @@ class DeviceCodeTokenTests: XCTestCase {
     
     func testThatCorrectResponseReceivedWhenCorrectRequestSent() async throws {
         let response = try await getDeviceCodeResponse()
-        
         XCTAssertEqual(response.status, .ok)
         let successResponse = try response.content.decode(SuccessResponse.self)
         XCTAssertEqual(successResponse.tokenType, "bearer")
         XCTAssertNotNil(successResponse.accessToken)
         XCTAssertNotNil(successResponse.expiresIn)
-        XCTAssertEqual(successResponse.scope, scopes.joined(separator: " "))
+        
+        // Directly compare the string value of scopes
+        XCTAssertEqual(successResponse.scope, scopes)
     }
+
     
     // MARK: - Private
     

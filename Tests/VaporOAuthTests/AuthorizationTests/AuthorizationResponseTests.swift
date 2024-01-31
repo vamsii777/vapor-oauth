@@ -30,7 +30,7 @@ class AuthorizationResponseTests: XCTestCase {
         let oauthClient = OAuthClient(
             clientID: AuthorizationResponseTests.clientID,
             redirectURIs: [AuthorizationResponseTests.redirectURI],
-            validScopes: [scope1, scope2],
+            validScopes: "\(scope1)\(scope2)",
             allowedGrantType: .authorization
         )
         fakeClientRetriever.validClients[AuthorizationResponseTests.clientID] = oauthClient
@@ -215,15 +215,14 @@ class AuthorizationResponseTests: XCTestCase {
     func testThatCorrectScopesSetOnCodeIfSupplied() async throws {
         let scope1 = "email"
         let scope2 = "address"
-        _ = try await getAuthResponse(scope: "\(scope1)+\(scope2)")
+        _ = try await getAuthResponse(scope: "\(scope1) \(scope2)") // Use space as the delimiter
 
         guard let code = fakeCodeManager.getCode(fakeCodeManager.generatedCode) else {
             XCTFail()
             return
         }
 
-        XCTAssertEqual(code.scopes ?? [], [scope1, scope2])
-
+        XCTAssertEqual(code.scopes, "\(scope1) \(scope2)") // Compare as a single string
     }
 
     func testThatRedirectURISetOnCodeCorrectly() async throws {

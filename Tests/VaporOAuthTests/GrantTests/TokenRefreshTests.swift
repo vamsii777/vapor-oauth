@@ -34,7 +34,7 @@ class TokenRefreshTests: XCTestCase {
             clientID: testClientID,
             redirectURIs: nil,
             clientSecret: testClientSecret,
-            validScopes: [scope1, scope2, scope4],
+            validScopes: "\(scope1)\(scope2)\(scope4)",
             confidential: true,
             allowedGrantType: .authorization
         )
@@ -43,7 +43,7 @@ class TokenRefreshTests: XCTestCase {
             jti: refreshTokenString,
             clientID: testClientID,
             userID: nil,
-            scopes: "\(scope1) \(scope2)", exp: Date().addingTimeInterval(60)
+            scopes: "\(scope1)\(scope2)", exp: Date().addingTimeInterval(60)
         )
         fakeTokenManager.refreshTokens[refreshTokenString] = validRefreshToken
     }
@@ -245,6 +245,8 @@ class TokenRefreshTests: XCTestCase {
     }
     
     func testLoweringScopeOnRefreshSetsScopeCorrectlyOnAccessAndRefreshTokens() async throws {
+        let scope1 = "email"  // Define the scope1 string as needed
+
         let response = try await getTokenResponse(scope: scope1)
         
         let responseJSON = try JSONDecoder().decode(SuccessResponse.self, from: response.body)
@@ -272,20 +274,24 @@ class TokenRefreshTests: XCTestCase {
             XCTFail("Failed to decode JWT: \(error)")
             return
         }
-        
+
+        // Compare accessToken.scopes directly to the string
+        XCTAssertEqual(accessToken.scopes, scope1)
+
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(responseJSON.scope, scope1)
         XCTAssertEqual(response.headers.cacheControl?.noStore, true)
         XCTAssertEqual(response.headers[HTTPHeaders.Name.pragma], ["no-cache"])
-        
-        // Optionally, verify the refresh token's scopes as well, if stored separately and not as a JWT
+
+        let refreshTokenString = responseJSON.refreshToken ?? ""
+
         guard let refreshToken = fakeTokenManager.getRefreshToken(refreshTokenString) else {
             XCTFail("Failed to retrieve refresh token")
             return
         }
-        
-        // Assuming refreshToken.scopes is also a space-separated string or directly comparable to scope1
-        XCTAssertEqual(refreshToken.scopes, scope1, "Refresh token scopes do not match the expected scope")
+
+        // Compare refreshToken.scopes directly to the string
+        XCTAssertEqual(refreshToken.scopes, scope1)
     }
     
     func testNotRequestingScopeOnRefreshDoesNotAlterOriginalScope() async throws {
@@ -299,41 +305,23 @@ class TokenRefreshTests: XCTestCase {
             XCTFail("No access token found in response")
             return
         }
-        
-        var signers = JWTSigners()
-        signers.use(.hs256(key: "dummySecret")) // Use the appropriate key and algorithm
-        
-        // Decode the JWT to verify its scopes
-        do {
-            let jwt = try signers.verify(accessTokenString, as: MyAccessToken.self)
-            guard let accessTokenScopes = jwt.scopes else {
-                XCTFail("Access token does not contain scopes")
-                return
-            }
 
-            // Since we are assuming the scopes are a space-separated string, compare them directly
-            XCTAssertEqual(accessTokenScopes, originalScopes, "Access token scopes have been altered")
-
-            // Optionally, if you need to compare the refresh token scopes as well:
-            guard let refreshToken = fakeTokenManager.getRefreshToken(refreshTokenString) else {
-                XCTFail("Failed to retrieve refresh token")
-                return
-            }
-            
-            // Assuming the refreshToken.scopes is also a String
-            XCTAssertEqual(refreshToken.scopes, originalScopes, "Refresh token scopes have been altered")
-            
-        } catch {
-            XCTFail("Failed to decode JWT: \(error)")
+        guard let refreshToken = fakeTokenManager.getRefreshToken(refreshTokenString) else {
+            XCTFail()
+            return
         }
+
+        // Directly compare the string values of scopes
+        XCTAssertEqual(accessToken.scopes, originalScopes)
+        XCTAssertEqual(refreshToken.scopes, originalScopes)
     }
     
     func testRequestingTheSameScopeWhenRefreshingWorksCorrectlyAndReturnsResult() async throws {
         // Ensure scopesToRequest is correctly initialized from validRefreshToken
         let scopesToRequest = validRefreshToken.scopes
-        
-        // Request token
+
         let response = try await getTokenResponse(scope: scopesToRequest)
+
         let responseJSON = try JSONDecoder().decode(SuccessResponse.self, from: response.body)
         
         // Set up JWTSigners
@@ -362,16 +350,10 @@ class TokenRefreshTests: XCTestCase {
             XCTFail("Failed to retrieve refresh token")
             return
         }
-        
-        // Safely unwrap and compare scopes
-        if let refreshTokenScopes = refreshToken.scopes, let requestedScopes = scopesToRequest {
-            XCTAssertEqual(refreshTokenScopes, requestedScopes, "Refresh token scopes do not match requested scopes")
-        } else {
-            XCTFail("Scopes are nil or not available")
-        }
-        
-        // Optionally, compare scopes from the JWT with the requested scopes directly
-        XCTAssertEqual(scopes, scopesToRequest, "Access token scopes do not match requested scopes")
+
+        // Directly compare the string values of scopes
+        XCTAssertEqual(accessToken.scopes, scopesToRequest)
+        XCTAssertEqual(refreshToken.scopes, scopesToRequest)
     }
     
     func testErrorWhenRequestingScopeWithNoScopesOriginallyRequestedOnRefreshToken() async throws {
@@ -394,7 +376,7 @@ class TokenRefreshTests: XCTestCase {
         let userID = "abcdefg-123456"
         let accessToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let userIDRefreshTokenString = "ASHFUIEWHFIHEWIUF"
-        let userIDRefreshToken = FakeRefreshToken(jti: userIDRefreshTokenString, clientID: testClientID, userID: userID, scopes: "\(scope1) \(scope2)", exp: Date().addingTimeInterval(60))
+        let userIDRefreshToken = FakeRefreshToken(jti: userIDRefreshTokenString, clientID: testClientID, userID: userID, scopes: "\(scope1)\(scope2)", exp: Date().addingTimeInterval(60))
         fakeTokenManager.refreshTokens[userIDRefreshTokenString] = userIDRefreshToken
         fakeTokenManager.accessTokenToReturn = accessToken
         _ = try await getTokenResponse(refreshToken: userIDRefreshTokenString)

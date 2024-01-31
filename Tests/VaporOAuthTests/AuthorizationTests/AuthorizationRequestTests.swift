@@ -215,7 +215,7 @@ class AuthorizationRequestTests: XCTestCase {
         )
 
         // Check if the response is an error response indicating the missing codeChallengeMethod
-        XCTAssertEqual(response.status, .seeOther) // Assuming error responses are redirected
+        XCTAssertEqual(response.status, .seeOther)
         XCTAssertTrue(response.headers.first(name: .location)?.contains("error=") ?? false)
     }
     
@@ -303,7 +303,7 @@ class AuthorizationRequestTests: XCTestCase {
     
     func testThatClientAccessingScopeItShouldNotReturnsInvalidScopeError() async throws {
         let clientID = "ABCDEFGH"
-        let scopes = ["email", "profile", "admin"]
+        let scopes = "email profile admin"
         let invalidScope = "create"
         let scopeClient = OAuthClient(
             clientID: clientID,

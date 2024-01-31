@@ -39,7 +39,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
     let testClientSecret = "ABCDEFGHIJK"
     let testCodeID = "12345ABCD"
     let userID = "the-user-id"
-    let scopes = ["email", "create"]
+    let scopes = "email create"
     let testCodeChallenge = "testCodeChallenge"
     let testCodeChallengeMethod = "S256"
 
@@ -212,7 +212,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
             redirectURI: "https://test.redirect.uri",
             userID: "testUserID",
             expiryDate: Date().addingTimeInterval(3600), // 1 hour in the future
-            scopes: ["testScope"],
+            scopes: "testScope",
             codeChallenge: nil, // No code challenge
             codeChallengeMethod: nil
         )
@@ -241,7 +241,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
             redirectURI: "https://test.redirect.uri",
             userID: "testUserID",
             expiryDate: Date().addingTimeInterval(3600), // 1 hour in the future
-            scopes: ["testScope"],
+            scopes: "testScope",
             codeChallenge: codeChallenge, // Provided code challenge
             codeChallengeMethod: "S256"
         )
@@ -319,7 +319,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
     func testThatCorrectResponseReceivedWhenCorrectRequestSent() async throws {
         let accessToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let refreshToken = "01234567890"
-        let scopes = ["email", "create"] // Assuming scopes is defined somewhere
+        let scopes = "email create"  // Defined as a space-delimited string
 
         fakeTokenManager.accessTokenToReturn = accessToken
         fakeTokenManager.refreshTokenToReturn = refreshToken
@@ -335,15 +335,15 @@ class AuthorizationCodeTokenTests: XCTestCase {
         XCTAssertEqual(responseJSON.expiresIn, 3600)
         XCTAssertEqual(responseJSON.accessToken, accessToken)
         XCTAssertEqual(responseJSON.refreshToken, refreshToken)
-        XCTAssertEqual(responseJSON.scope, scopes.joined(separator: " "))
+        XCTAssertEqual(responseJSON.scope, scopes)
 
         guard let token = fakeTokenManager.getAccessToken(accessToken) else {
             XCTFail("Access token not found")
             return
         }
 
-        let tokenScopes = token.scopes?.components(separatedBy: " ") ?? []
-        XCTAssertEqual(tokenScopes, scopes, "Token scopes do not match expected scopes")
+        // Directly compare the string values of scopes
+        XCTAssertEqual(token.scopes, scopes)
     }
 
     func testThatNoScopeReturnedIfNoneSetOnCode() async throws {
@@ -406,7 +406,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         let accessTokenString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         fakeTokenManager.accessTokenToReturn = accessTokenString
         let newCodeString = "new-code-string"
-        let scopes = ["oneScope", "aDifferentScope"]
+        let scopes = "oneScope aDifferentScope"
         let newCode = OAuthCode(codeID: newCodeString, clientID: testClientID, redirectURI: testClientRedirectURI, userID: "user-id", expiryDate: Date().addingTimeInterval(60), scopes: scopes, codeChallenge: nil, codeChallengeMethod: nil)
         fakeCodeManager.codes[newCodeString] = newCode
 
@@ -417,10 +417,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
             return
         }
 
-        // Assuming scopes in accessToken is a space-separated string
-        let accessTokenScopes = accessToken.scopes?.components(separatedBy: " ") ?? []
-
-        XCTAssertEqual(accessTokenScopes, scopes, "Access token scopes do not match expected scopes")
+        XCTAssertEqual(accessToken.scopes, scopes)
     }
     
     func testTokenHasExpiryTimeSetOnIt() async throws {
@@ -495,11 +492,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
             return
         }
 
-        // Split the refreshToken.scopes string into an array, or default to an empty array if nil
-        let refreshTokenScopes = refreshToken.scopes?.components(separatedBy: " ") ?? []
-        
-        // Assuming `scopes` is an array of String for correct type comparison
-        XCTAssertEqual(refreshTokenScopes, scopes, "Refresh token scopes do not match expected scopes")
+        XCTAssertEqual(refreshToken.scopes, scopes)
     }
 
     // MARK: - Private

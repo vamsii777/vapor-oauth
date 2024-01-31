@@ -42,7 +42,7 @@ class DefaultImplementationTests: XCTestCase {
             responseType: "token",
             clientID: "client-ID",
             redirectURI: uri,
-            scope: ["email"],
+            scope: "email",
             state: "abcdef",
             csrfToken: "01234",
             codeChallenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",

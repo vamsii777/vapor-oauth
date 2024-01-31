@@ -9,7 +9,7 @@ class StubCodeManager: CodeManager {
         userID: String,
         clientID: String,
         redirectURI: String,
-        scopes: [String]?,
+        scopes: String?,
         codeChallenge: String?,
         codeChallengeMethod: String?,
         nonce: String?
@@ -30,7 +30,7 @@ class StubCodeManager: CodeManager {
         return nil
     }
     
-    func generateDeviceCode(userID: String, clientID: String, scopes: [String]?) throws -> String {
+    func generateDeviceCode(userID: String, clientID: String, scopes: String?) throws -> String {
         
         return "DEVICE_CODE"
     }

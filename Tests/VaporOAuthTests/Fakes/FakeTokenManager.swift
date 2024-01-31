@@ -26,7 +26,7 @@ struct MyIDToken: VaporOAuth.IDToken {
 
 class FakeTokenManager: TokenManager {
     
-    func generateTokens(clientID: String, userID: String?, scopes: [String]?, accessTokenExpiryTime: Int, idTokenExpiryTime: Int, nonce: String?) async throws -> (VaporOAuth.AccessToken, VaporOAuth.RefreshToken, VaporOAuth.IDToken) {
+    func generateTokens(clientID: String, userID: String?, scopes: String?, accessTokenExpiryTime: Int, idTokenExpiryTime: Int, nonce: String?) async throws -> (VaporOAuth.AccessToken, VaporOAuth.RefreshToken, VaporOAuth.IDToken) {
         // Generate access token
         let accessToken = try generateAccessToken(clientID: clientID, userID: userID, scopes: scopes, expiryTime: accessTokenExpiryTime)
         
@@ -39,7 +39,7 @@ class FakeTokenManager: TokenManager {
         return (accessToken, refreshToken, idToken)
     }
     
-    func generateIDToken(clientID: String, userID: String, scopes: [String]?, expiryTime: Int, nonce: String?) async throws -> VaporOAuth.IDToken {
+    func generateIDToken(clientID: String, userID: String, scopes: String?, expiryTime: Int, nonce: String?) async throws -> VaporOAuth.IDToken {
         // Create an instance of your IDToken conforming object and set its properties
         var idToken = MyIDToken()
         idToken.jti = "YOUR-ID-TOKEN-STRING"
@@ -69,12 +69,9 @@ class FakeTokenManager: TokenManager {
         return accessTokens[accessToken]
     }
     
-    func generateAccessRefreshTokens(clientID: String, userID: String?, scopes: [String]?, accessTokenExpiryTime: Int) throws -> (AccessToken, RefreshToken) {
-        // Convert scopes array to a single string, separated by spaces, or nil if scopes is nil
-        let scopesString = scopes?.joined(separator: " ")
-        
-        let accessToken = FakeAccessToken(jti: accessTokenToReturn, clientID: clientID, userID: userID, scopes: scopesString, expiryTime: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
-        let refreshToken = FakeRefreshToken(jti: refreshTokenToReturn, clientID: clientID, userID: userID, scopes: scopesString, exp: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
+    func generateAccessRefreshTokens(clientID: String, userID: String?, scopes: String?, accessTokenExpiryTime: Int) throws -> (AccessToken, RefreshToken) {
+        let accessToken = FakeAccessToken(jti: accessTokenToReturn, clientID: clientID, userID: userID, scopes: scopes, expiryTime: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
+        let refreshToken = FakeRefreshToken(jti: refreshTokenToReturn, clientID: clientID, userID: userID, scopes: scopes, exp: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
         
         accessTokens[accessTokenToReturn] = accessToken
         refreshTokens[refreshTokenToReturn] = refreshToken
@@ -82,14 +79,13 @@ class FakeTokenManager: TokenManager {
         return (accessToken, refreshToken)
     }
     
-    func generateAccessToken(clientID: String, userID: String?, scopes: [String]?, expiryTime: Int) throws -> AccessToken {
-        let scopesString = scopes?.joined(separator: " ")
-        let accessToken = FakeAccessToken(jti: accessTokenToReturn, clientID: clientID, userID: userID, scopes: scopesString, expiryTime: currentTime.addingTimeInterval(TimeInterval(expiryTime)))
+    func generateAccessToken(clientID: String, userID: String?, scopes: String?, expiryTime: Int) throws -> AccessToken {
+        let accessToken = FakeAccessToken(jti: accessTokenToReturn, clientID: clientID, userID: userID, scopes: scopes, expiryTime: currentTime.addingTimeInterval(TimeInterval(expiryTime)))
         accessTokens[accessTokenToReturn] = accessToken
         return accessToken
     }
     
-    func updateRefreshToken(_ refreshToken: RefreshToken, scopes: [String]) {
+    func updateRefreshToken(_ refreshToken: RefreshToken, scopes: String) {
         var tempRefreshToken = refreshToken
         tempRefreshToken.scopes = scopes.joined(separator: " ")
         refreshTokens[refreshToken.jti] = tempRefreshToken

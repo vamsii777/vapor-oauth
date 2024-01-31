@@ -17,13 +17,13 @@ class FakeCodeManager: CodeManager {
     }
     
     // Updated to include PKCE parameters
-    func generateCode(userID: String, clientID: String, redirectURI: String, scopes: [String]?, codeChallenge: String?, codeChallengeMethod: String?, nonce: String?) throws -> String {
+    func generateCode(userID: String, clientID: String, redirectURI: String, scopes: String?, codeChallenge: String?, codeChallengeMethod: String?, nonce: String?) throws -> String {
         let code = OAuthCode(codeID: generatedCode, clientID: clientID, redirectURI: redirectURI, userID: userID, expiryDate: Date().addingTimeInterval(60), scopes: scopes, codeChallenge: codeChallenge, codeChallengeMethod: codeChallengeMethod)
         codes[generatedCode] = code
         return generatedCode
     }
 
-    func generateDeviceCode(userID: String, clientID: String, scopes: [String]?) throws -> String {
+    func generateDeviceCode(userID: String, clientID: String, scopes: String?) throws -> String {
         let deviceCode = OAuthDeviceCode(deviceCodeID: generatedCode, userCode: "USER_CODE", clientID: clientID, userID: userID, expiryDate: Date().addingTimeInterval(60), scopes: scopes)
         deviceCodes[generatedCode] = deviceCode
         return generatedCode
