@@ -41,7 +41,7 @@ public struct AuthorizationRequestObject {
     public let responseType: String
     public let clientID: String
     public let redirectURI: URI
-    public let scope: [String]
+    public let scope: String
     public let state: String?
     public let csrfToken: String
     // PKCE parameters
@@ -50,7 +50,7 @@ public struct AuthorizationRequestObject {
     // OpenID Connect specific parameters
     public let nonce: String?
     
-    public init(responseType: String, clientID: String, redirectURI: URI, scope: [String], state: String?, csrfToken: String, codeChallenge: String?, codeChallengeMethod: String?, nonce: String?) {
+    public init(responseType: String, clientID: String, redirectURI: URI, scope: String, state: String?, csrfToken: String, codeChallenge: String?, codeChallengeMethod: String?, nonce: String?) {
         self.responseType = responseType
         self.clientID = clientID
         self.redirectURI = redirectURI

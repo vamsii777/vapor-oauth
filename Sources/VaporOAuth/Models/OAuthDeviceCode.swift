@@ -6,7 +6,7 @@ public struct OAuthDeviceCode {
     public let clientID: String
     public let userID: String?
     public let expiryDate: Date
-    public let scopes: [String]?
+    public let scopes: String? // Updated to String?
 
     public var extend: [String: Any] = [:]
 
@@ -16,7 +16,7 @@ public struct OAuthDeviceCode {
         clientID: String,
         userID: String?,
         expiryDate: Date,
-        scopes: [String]?
+        scopes: String? // Updated to String?
     ) {
         self.deviceCodeID = deviceCodeID
         self.userCode = userCode

@@ -3,15 +3,15 @@ import Vapor
 
 actor RemoteTokenResponseActor {
     var remoteTokenResponse: RemoteTokenResponse?
-
+    
     func setRemoteTokenResponse(_ response: RemoteTokenResponse) {
         self.remoteTokenResponse = response
     }
-
+    
     func hasTokenResponse() async -> Bool {
         return remoteTokenResponse != nil
     }
-
+    
     func getRemoteTokenResponse() async throws -> RemoteTokenResponse {
         guard let response = remoteTokenResponse else {
             throw Abort(.internalServerError)
@@ -43,8 +43,8 @@ extension OAuthHelper {
                 
                 let remoteTokenResponse = try await responseActor.getRemoteTokenResponse()
                 
-                if let requiredScopes = scopes {
-                    guard let tokenScopes = remoteTokenResponse.scopes else {
+                if let requiredScopes = scopes?.components(separatedBy: " ") {
+                    guard let tokenScopes = remoteTokenResponse.scopes?.components(separatedBy: " ") else {
                         throw Abort(.unauthorized)
                     }
                     
@@ -67,7 +67,7 @@ extension OAuthHelper {
                         responseActor: responseActor
                     )
                 }
-
+                
                 let remoteTokenResponse = try await responseActor.getRemoteTokenResponse()
                 
                 guard let user = remoteTokenResponse.user else {
@@ -78,7 +78,7 @@ extension OAuthHelper {
             }
         )
     }
-
+    
     private static func setupRemoteTokenResponse(
         request: Request,
         tokenIntrospectionEndpoint: String,
@@ -110,11 +110,11 @@ extension OAuthHelper {
             throw Abort(.unauthorized)
         }
         
-        var scopes: [String]?
+        var scopes: String?
         var oauthUser: OAuthUser?
         
         if let tokenScopes: String = tokenInfoJSON[OAuthResponseParameters.scope] {
-            scopes = tokenScopes.components(separatedBy: " ")
+            scopes = tokenScopes
         }
         
         if let userID: String = tokenInfoJSON[OAuthResponseParameters.userID] {
@@ -133,6 +133,7 @@ extension OAuthHelper {
 }
 
 struct RemoteTokenResponse {
-    let scopes: [String]?
+    let scopes: String?
     let user: OAuthUser?
 }
+

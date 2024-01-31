@@ -1,34 +1,34 @@
 import Vapor
 
 struct PasswordTokenHandler {
-
+    
     let clientValidator: ClientValidator
     let scopeValidator: ScopeValidator
     let userManager: UserManager
     let logger: Logger
     let tokenManager: TokenManager
     let tokenResponseGenerator: TokenResponseGenerator
-
+    
     func handlePasswordTokenRequest(_ request: Request) async throws -> Response {
         guard let username: String = request.content[OAuthRequestParameters.usernname] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'username' parameter")
         }
-
+        
         guard let password: String = request.content[OAuthRequestParameters.password] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'password' parameter")
         }
-
+        
         guard let clientID: String = request.content[OAuthRequestParameters.clientID] else {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidRequest,
                                                              description: "Request was missing the 'client_id' parameter")
         }
-
+        
         do {
             try await clientValidator.authenticateClient(clientID: clientID,
-                                                   clientSecret: request.content[String.self, at: OAuthRequestParameters.clientSecret],
-                                                   grantType: .password)
+                                                         clientSecret: request.content[String.self, at: OAuthRequestParameters.clientSecret],
+                                                         grantType: .password)
         } catch ClientError.unauthorized {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidClient,
                                                              description: "Request had invalid client credentials", status: .unauthorized)
@@ -36,9 +36,9 @@ struct PasswordTokenHandler {
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.unauthorizedClient,
                                                              description: "Password Credentials grant is not allowed")
         }
-
+        
         let scopeString = request.content[String.self, at: OAuthRequestParameters.scope]
-
+        
         if let scopes = scopeString {
             do {
                 try await scopeValidator.validateScope(clientID: clientID, scopes: scopes)
@@ -50,21 +50,20 @@ struct PasswordTokenHandler {
                                                                  description: "Request contained an unknown scope")
             }
         }
-
+        
         guard let userID = try await userManager.authenticateUser(username: username, password: password) else {
             logger.warning("LOGIN WARNING: Invalid login attempt for user \(username)")
             return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidGrant,
                                                              description: "Request had invalid credentials")
         }
-
+        
         let expiryTime = 3600
-        let scopes = scopeString?.components(separatedBy: " ")
-
+        
         let (access, refresh) = try await tokenManager.generateAccessRefreshTokens(clientID: clientID, userID: userID,
-                                                                             scopes: scopes,
-                                                                             accessTokenExpiryTime: expiryTime)
-
+                                                                                   scopes: scopeString,
+                                                                                   accessTokenExpiryTime: expiryTime)
+        
         return try await tokenResponseGenerator.createResponse(accessToken: access, refreshToken: refresh,
-                                                         expires: expiryTime, scope: scopeString)
+                                                               expires: expiryTime, scope: scopeString) // Use scopeString here as well
     }
 }

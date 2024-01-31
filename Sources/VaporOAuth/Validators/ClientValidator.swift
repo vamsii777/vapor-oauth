@@ -6,7 +6,7 @@ struct ClientValidator {
     let scopeValidator: ScopeValidator
     let environment: Environment
     
-    func validateClient(clientID: String, responseType: String, redirectURI: String, scopes: [String]?) async throws {
+    func validateClient(clientID: String, responseType: String, redirectURI: String, scopes: String?) async throws {
         guard let client = try await clientRetriever.getClient(clientID: clientID) else {
             throw AuthorizationError.invalidClientID
         }
@@ -37,7 +37,7 @@ struct ClientValidator {
             throw AuthorizationError.invalidResponseType
         }
         
-        let scopesString = scopes?.joined(separator: " ")
+        let scopesString = scopes
         
         try await scopeValidator.validateScope(clientID: clientID, scopes: scopesString)
         

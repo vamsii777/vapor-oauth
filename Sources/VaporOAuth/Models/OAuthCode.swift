@@ -6,7 +6,7 @@ public struct OAuthCode {
     public let redirectURI: String
     public let userID: String
     public let expiryDate: Date
-    public let scopes: [String]?
+    public let scopes: String?
 
     // PKCE parameters
     public let codeChallenge: String?
@@ -23,7 +23,7 @@ public struct OAuthCode {
         redirectURI: String,
         userID: String,
         expiryDate: Date,
-        scopes: [String]?,
+        scopes: String?,
         codeChallenge: String?, // Add PKCE parameters
         codeChallengeMethod: String?,
         nonce: String? = nil
