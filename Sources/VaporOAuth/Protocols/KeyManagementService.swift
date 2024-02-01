@@ -1,13 +1,62 @@
 import Foundation
 import JWTKit
 
-public protocol KeyManagementService: Sendable  {
-    func generateKey() throws -> RSAKey
-    func storeKey(_ key: RSAKey) throws
-    func retrieveKey(identifier: String) throws -> RSAKey
-    func publicKeyIdentifier() throws -> String
-    func convertToJWK(_ key: RSAKey) throws -> JWK 
-    func privateKeyIdentifier() throws -> String
-    // Additional methods for key rotation, deletion, etc.
+public enum KeyType: String, Codable {
+    case `public`
+    case `private`
+}
 
+/// A protocol that defines the interface for a key management service.
+public protocol KeyManagementService: Sendable {
+
+    /// Generates a new key pair and returns the identifiers for the private and public keys.
+    /// - Returns: A tuple containing the private key identifier and the public key identifier.
+    /// - Throws: An error if the key generation fails.
+    func generateKey() async throws -> (privateKeyIdentifier: String, publicKeyIdentifier: String)
+
+    /// Stores a key in the key management service.
+    /// - Parameters:
+    ///   - key: The key to be stored.
+    ///   - keyType: The type of the key (public or private).
+    /// - Throws: An error if the key storage fails.
+    func storeKey(_ key: String, keyType: KeyType) async throws
+
+    /// Retrieves a key from the key management service.
+    /// - Parameters:
+    ///   - identifier: The identifier of the key to be retrieved.
+    ///   - keyType: The type of the key (public or private).
+    /// - Returns: The key data.
+    /// - Throws: An error if the key retrieval fails.
+    func retrieveKey(identifier: String, keyType: KeyType) async throws -> Data
+
+    /// Retrieves the identifier of the public key.
+    /// - Returns: The identifier of the public key.
+    /// - Throws: An error if the public key identifier retrieval fails.
+    func publicKeyIdentifier() async throws -> String
+
+    /// Converts a public key to a JSON Web Key (JWK) representation.
+    /// - Parameter publicKey: The public key data.
+    /// - Returns: The JWK representation of the public key.
+    /// - Throws: An error if the conversion fails.
+    func convertToJWK(_ publicKey: Data) throws -> [JWK]
+
+    /// Retrieves the identifier of the private key.
+    /// - Returns: The identifier of the private key.
+    /// - Throws: An error if the private key identifier retrieval fails.
+    func privateKeyIdentifier() async throws -> String
+    
+    /// Rotates the key by generating a new key pair and optionally deprecating the old key.
+    /// - Parameter deprecateOld: A flag indicating whether to deprecate the old key.
+    /// - Throws: An error if the key rotation fails.
+    func rotateKey(deprecateOld: Bool) async throws
+
+    /// Deletes a key from the key management service.
+    /// - Parameter identifier: The identifier of the key to be deleted.
+    /// - Throws: An error if the key deletion fails.
+    func deleteKey(identifier: String) async throws
+
+    /// Lists all the keys stored in the key management service.
+    /// - Returns: An array of key identifiers.
+    /// - Throws: An error if the key listing fails.
+    func listKeys() async throws -> [String]
 }

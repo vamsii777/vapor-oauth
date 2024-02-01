@@ -70,23 +70,28 @@ class FakeTokenManager: TokenManager {
     }
     
     func generateAccessRefreshTokens(clientID: String, userID: String?, scopes: [String]?, accessTokenExpiryTime: Int) throws -> (AccessToken, RefreshToken) {
-        let accessToken = FakeAccessToken(jti: accessTokenToReturn, clientID: clientID, userID: userID, scopes: scopes, expiryTime: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
-        let refreshToken = FakeRefreshToken(jti: refreshTokenToReturn, clientID: clientID, userID: userID, scopes: scopes, exp: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
+        // Convert scopes array to a single string, separated by spaces, or nil if scopes is nil
+        let scopesString = scopes?.joined(separator: " ")
+        
+        let accessToken = FakeAccessToken(jti: accessTokenToReturn, clientID: clientID, userID: userID, scopes: scopesString, expiryTime: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
+        let refreshToken = FakeRefreshToken(jti: refreshTokenToReturn, clientID: clientID, userID: userID, scopes: scopesString, exp: currentTime.addingTimeInterval(TimeInterval(accessTokenExpiryTime)))
         
         accessTokens[accessTokenToReturn] = accessToken
         refreshTokens[refreshTokenToReturn] = refreshToken
+        
         return (accessToken, refreshToken)
     }
     
     func generateAccessToken(clientID: String, userID: String?, scopes: [String]?, expiryTime: Int) throws -> AccessToken {
-        let accessToken = FakeAccessToken(jti: accessTokenToReturn, clientID: clientID, userID: userID, scopes: scopes, expiryTime: currentTime.addingTimeInterval(TimeInterval(expiryTime)))
+        let scopesString = scopes?.joined(separator: " ")
+        let accessToken = FakeAccessToken(jti: accessTokenToReturn, clientID: clientID, userID: userID, scopes: scopesString, expiryTime: currentTime.addingTimeInterval(TimeInterval(expiryTime)))
         accessTokens[accessTokenToReturn] = accessToken
         return accessToken
     }
     
     func updateRefreshToken(_ refreshToken: RefreshToken, scopes: [String]) {
         var tempRefreshToken = refreshToken
-        tempRefreshToken.scopes = scopes
+        tempRefreshToken.scopes = scopes.joined(separator: " ")
         refreshTokens[refreshToken.jti] = tempRefreshToken
     }
     

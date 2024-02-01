@@ -4,19 +4,23 @@ import JWTKit
 struct UserInfoHandler {
     let jwtSignerService: JWTSignerService
     let userManager: UserManager
-    
-    init(jwtSignerService: JWTSignerService, userManager: UserManager) {
-        self.jwtSignerService = jwtSignerService
-        self.userManager = userManager
-    }
+    let environment: Environment
     
     func handleRequest(_ req: Request) async throws -> OAuthUser {
+        
+        // Enforce HTTPS in production environment
+        if environment == .production {
+            guard req.url.scheme == "https" else {
+                throw Abort(.badRequest, reason: "UserInfo endpoint requires HTTPS")
+            }
+        }
+        
         guard let bearerToken = req.headers.bearerAuthorization else {
             throw Abort(.unauthorized, reason: "No bearer token provided")
         }
         
         // Create JWTSigner from JWTSignerService
-        let jwtSigner = try jwtSignerService.makeJWTSigner()
+        let jwtSigner = try await jwtSignerService.makeJWTSigner()
         
         
         // Verify the token and extract the payload

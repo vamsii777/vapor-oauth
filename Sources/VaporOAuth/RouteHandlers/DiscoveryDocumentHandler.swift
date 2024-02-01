@@ -2,65 +2,53 @@ import Vapor
 
 struct DiscoveryDocumentHandler {
     
-    let discoveryDocument: DiscoveryDocument  // Accept a DiscoveryDocument conforming object
+    let discoveryDocument: DiscoveryDocument
     
     init(discoveryDocument: DiscoveryDocument) {
         self.discoveryDocument = discoveryDocument
     }
     
-    
     func generateDiscoveryDocument() -> OAuthDiscoveryDocument {
-        // Access properties and methods from the provided discoveryDocument
-        let issuer = discoveryDocument.issuer
-        let authorizationEndpoint = discoveryDocument.authorizationEndpoint
-        let tokenEndpoint = discoveryDocument.tokenEndpoint
-        let userInfoEndpoint = discoveryDocument.userInfoEndpoint
-        let revocationEndpoint = discoveryDocument.revocationEndpoint
-        let introspectionEndpoint = discoveryDocument.introspectionEndpoint
-        let jwksURI = discoveryDocument.jwksURI
-        let registrationEndpoint = discoveryDocument.registrationEndpoint
-        let scopesSupported = discoveryDocument.scopesSupported
-        let responseTypesSupported = discoveryDocument.responseTypesSupported
-        let grantTypesSupported = discoveryDocument.grantTypesSupported
-        let tokenEndpointAuthMethodsSupported = discoveryDocument.tokenEndpointAuthMethodsSupported
-        let tokenEndpointAuthSigningAlgValuesSupported = discoveryDocument.tokenEndpointAuthSigningAlgValuesSupported
-        let serviceDocumentation = discoveryDocument.serviceDocumentation
-        let uiLocalesSupported = discoveryDocument.uiLocalesSupported
-        let opPolicyURI = discoveryDocument.opPolicyURI
-        let opTosURI = discoveryDocument.opTosURI
-        let subjectTypesSupported = discoveryDocument.subjectTypesSupported
-        let claimsSupported = discoveryDocument.claimsSupported
-        
-        // Create an OAuthDiscoveryDocument object
-        let discoveryDocument = OAuthDiscoveryDocument(
-            issuer: issuer,
-            authorizationEndpoint: authorizationEndpoint,
-            tokenEndpoint: tokenEndpoint,
-            userInfoEndpoint: userInfoEndpoint,
-            revocationEndpoint: revocationEndpoint,
-            introspectionEndpoint: introspectionEndpoint,
-            jwksURI: jwksURI,
-            registrationEndpoint: registrationEndpoint,
-            scopesSupported: scopesSupported,
-            responseTypesSupported: responseTypesSupported,
-            grantTypesSupported: grantTypesSupported,
-            tokenEndpointAuthMethodsSupported: tokenEndpointAuthMethodsSupported,
-            tokenEndpointAuthSigningAlgValuesSupported: tokenEndpointAuthSigningAlgValuesSupported,
-            serviceDocumentation: serviceDocumentation,
-            uiLocalesSupported: uiLocalesSupported,
-            opPolicyURI: opPolicyURI,
-            opTosURI: opTosURI,
-            subjectTypesSupported: subjectTypesSupported,
-            claimsSupported: claimsSupported
+        return OAuthDiscoveryDocument(
+            issuer: discoveryDocument.issuer,
+            authorizationEndpoint: discoveryDocument.authorizationEndpoint,
+            tokenEndpoint: discoveryDocument.tokenEndpoint,
+            userInfoEndpoint: discoveryDocument.userInfoEndpoint,
+            revocationEndpoint: discoveryDocument.revocationEndpoint,
+            introspectionEndpoint: discoveryDocument.introspectionEndpoint,
+            jwksURI: discoveryDocument.jwksURI,
+            registrationEndpoint: discoveryDocument.registrationEndpoint,
+            scopesSupported: discoveryDocument.scopesSupported,
+            responseTypesSupported: discoveryDocument.responseTypesSupported,
+            responseModesSupported: discoveryDocument.responseModesSupported,
+            grantTypesSupported: discoveryDocument.grantTypesSupported,
+            acrValuesSupported: discoveryDocument.acrValuesSupported,
+            idTokenEncryptionAlgValuesSupported: discoveryDocument.idTokenEncryptionAlgValuesSupported,
+            idTokenEncryptionEncValuesSupported: discoveryDocument.idTokenEncryptionEncValuesSupported,
+            userinfoSigningAlgValuesSupported: discoveryDocument.userinfoSigningAlgValuesSupported,
+            userinfoEncryptionAlgValuesSupported: discoveryDocument.userinfoEncryptionAlgValuesSupported,
+            userinfoEncryptionEncValuesSupported: discoveryDocument.userinfoEncryptionEncValuesSupported,
+            requestObjectSigningAlgValuesSupported: discoveryDocument.requestObjectSigningAlgValuesSupported,
+            requestObjectEncryptionAlgValuesSupported: discoveryDocument.requestObjectEncryptionAlgValuesSupported,
+            requestObjectEncryptionEncValuesSupported: discoveryDocument.requestObjectEncryptionEncValuesSupported,
+            tokenEndpointAuthMethodsSupported: discoveryDocument.tokenEndpointAuthMethodsSupported,
+            tokenEndpointAuthSigningAlgValuesSupported: discoveryDocument.tokenEndpointAuthSigningAlgValuesSupported,
+            displayValuesSupported: discoveryDocument.displayValuesSupported,
+            claimTypesSupported: discoveryDocument.claimTypesSupported,
+            claimsSupported: discoveryDocument.claimsSupported,
+            serviceDocumentation: discoveryDocument.serviceDocumentation,
+            claimsLocalesSupported: discoveryDocument.claimsLocalesSupported,
+            uiLocalesSupported: discoveryDocument.uiLocalesSupported,
+            claimsParameterSupported: discoveryDocument.claimsParameterSupported,
+            requestParameterSupported: discoveryDocument.requestParameterSupported,
+            requestUriParameterSupported: discoveryDocument.requireRequestUriRegistration,
+            requireRequestUriRegistration: discoveryDocument.requireRequestUriRegistration,
+            opPolicyURI: discoveryDocument.opPolicyURI,
+            opTosURI: discoveryDocument.opTosURI
         )
-        
-        // Return the generated discovery document
-        return discoveryDocument
-        
     }
     
     func handleRequest(request: Request) throws -> OAuthDiscoveryDocument {
-        // Generate and return the OAuth 2.0 Discovery Document
         return generateDiscoveryDocument()
     }
 }

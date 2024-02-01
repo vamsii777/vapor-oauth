@@ -37,7 +37,9 @@ struct ClientValidator {
             throw AuthorizationError.invalidResponseType
         }
         
-        try await scopeValidator.validateScope(clientID: clientID, scopes: scopes)
+        let scopesString = scopes?.joined(separator: " ")
+        
+        try await scopeValidator.validateScope(clientID: clientID, scopes: scopesString)
         
         let redirectURI = URI(stringLiteral: redirectURI)
         

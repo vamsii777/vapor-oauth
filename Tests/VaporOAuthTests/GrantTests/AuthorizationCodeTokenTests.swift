@@ -319,8 +319,8 @@ class AuthorizationCodeTokenTests: XCTestCase {
     func testThatCorrectResponseReceivedWhenCorrectRequestSent() async throws {
         let accessToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let refreshToken = "01234567890"
+        let scopes = ["email", "create"] // Assuming scopes is defined somewhere
 
-        
         fakeTokenManager.accessTokenToReturn = accessToken
         fakeTokenManager.refreshTokenToReturn = refreshToken
 
@@ -329,20 +329,21 @@ class AuthorizationCodeTokenTests: XCTestCase {
         let responseJSON = try JSONDecoder().decode(SuccessResponse.self, from: response.body)
 
         XCTAssertEqual(response.status, .ok)
-        XCTAssertTrue(response.headers.cacheControl?.noStore ?? false)
-        XCTAssertEqual(response.headers[HTTPHeaders.Name.pragma], ["no-cache"])
+        XCTAssertTrue(response.headers.contains(name: .cacheControl) && response.headers.cacheControl?.noStore == true)
+        XCTAssertEqual(response.headers.first(name: .pragma), "no-cache")
         XCTAssertEqual(responseJSON.tokenType, "bearer")
         XCTAssertEqual(responseJSON.expiresIn, 3600)
         XCTAssertEqual(responseJSON.accessToken, accessToken)
         XCTAssertEqual(responseJSON.refreshToken, refreshToken)
-        XCTAssertEqual(responseJSON.scope, "email create")
+        XCTAssertEqual(responseJSON.scope, scopes.joined(separator: " "))
 
         guard let token = fakeTokenManager.getAccessToken(accessToken) else {
-            XCTFail()
+            XCTFail("Access token not found")
             return
         }
 
-        XCTAssertEqual(token.scopes ?? [], scopes)
+        let tokenScopes = token.scopes?.components(separatedBy: " ") ?? []
+        XCTAssertEqual(tokenScopes, scopes, "Token scopes do not match expected scopes")
     }
 
     func testThatNoScopeReturnedIfNoneSetOnCode() async throws {
@@ -412,13 +413,16 @@ class AuthorizationCodeTokenTests: XCTestCase {
         _ = try await getAuthCodeResponse(code: newCodeString)
 
         guard let accessToken = fakeTokenManager.getAccessToken(accessTokenString) else {
-            XCTFail()
+            XCTFail("Access token not found")
             return
         }
 
-        XCTAssertEqual(accessToken.scopes ?? [], scopes)
-    }
+        // Assuming scopes in accessToken is a space-separated string
+        let accessTokenScopes = accessToken.scopes?.components(separatedBy: " ") ?? []
 
+        XCTAssertEqual(accessTokenScopes, scopes, "Access token scopes do not match expected scopes")
+    }
+    
     func testTokenHasExpiryTimeSetOnIt() async throws {
         let accessTokenString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         fakeTokenManager.accessTokenToReturn = accessTokenString
@@ -487,11 +491,15 @@ class AuthorizationCodeTokenTests: XCTestCase {
         _ = try await getAuthCodeResponse()
 
         guard let refreshToken = fakeTokenManager.getRefreshToken(refreshTokenString) else {
-            XCTFail()
+            XCTFail("Refresh token not found")
             return
         }
 
-        XCTAssertEqual(refreshToken.scopes ?? [], scopes)
+        // Split the refreshToken.scopes string into an array, or default to an empty array if nil
+        let refreshTokenScopes = refreshToken.scopes?.components(separatedBy: " ") ?? []
+        
+        // Assuming `scopes` is an array of String for correct type comparison
+        XCTAssertEqual(refreshTokenScopes, scopes, "Refresh token scopes do not match expected scopes")
     }
 
     // MARK: - Private

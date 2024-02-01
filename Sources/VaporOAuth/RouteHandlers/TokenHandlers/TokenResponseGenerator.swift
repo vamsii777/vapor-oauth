@@ -13,8 +13,8 @@ struct TokenResponseGenerator {
         return try createResponseForToken(status: status, jsonData: json)
     }
 
-    func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?, expires: Int, scope: String?) throws -> Response {
-        let jwtSigner = try jwtSignerService.makeJWTSigner()
+    func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?, expires: Int, scope: String?) async throws -> Response {
+        let jwtSigner = try await jwtSignerService.makeJWTSigner()
 
         // Sign the access token to create JWT
         let accessTokenJWT = try jwtSigner.sign(accessToken)
@@ -51,8 +51,8 @@ struct TokenResponseGenerator {
         return response
     }
 
-    func createOpenIDConnectResponse(accessToken: AccessToken, refreshToken: RefreshToken?, idToken: IDToken, expires: Int, scope: String?) throws -> Response {
-        let jwtSigner = try jwtSignerService.makeJWTSigner()
+    func createOpenIDConnectResponse(accessToken: AccessToken, refreshToken: RefreshToken?, idToken: IDToken, expires: Int, scope: String?) async throws -> Response {
+        let jwtSigner = try await jwtSignerService.makeJWTSigner()
 
         // Sign the access token and ID token
         let accessTokenString = try jwtSigner.sign(accessToken)

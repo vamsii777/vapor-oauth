@@ -33,13 +33,15 @@ class StubTokenManager: TokenManager {
     var deviceCodes: [String: OAuthDeviceCode] = [:]
     
     func generateAccessRefreshTokens(clientID: String, userID: String?, scopes: [String]?, accessTokenExpiryTime: Int) throws -> (AccessToken, RefreshToken) {
-        let access = FakeAccessToken(jti: accessToken, clientID: clientID, userID: userID, scopes: scopes, expiryTime: Date())
-        let refresh = FakeRefreshToken(jti: refreshToken, clientID: clientID, userID: nil, scopes: scopes, exp: Date())
+        let scopesString = scopes?.joined(separator: " ")
+        let access = FakeAccessToken(jti: accessToken, clientID: clientID, userID: userID, scopes: scopesString, expiryTime: Date())
+        let refresh = FakeRefreshToken(jti: refreshToken, clientID: clientID, userID: nil, scopes: scopesString, exp: Date())
         return (access, refresh)
     }
     
     func generateAccessToken(clientID: String, userID: String?, scopes: [String]?, expiryTime: Int) throws -> AccessToken {
-        return FakeAccessToken(jti: accessToken, clientID: clientID, userID: userID, scopes: scopes, expiryTime: Date())
+        let scopesString = scopes?.joined(separator: " ")
+        return FakeAccessToken(jti: accessToken, clientID: clientID, userID: userID, scopes: scopesString, expiryTime: Date())
     }
     
     func getRefreshToken(_ refreshToken: String) -> RefreshToken? {
