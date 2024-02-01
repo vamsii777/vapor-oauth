@@ -329,8 +329,8 @@ class AuthorizationCodeTokenTests: XCTestCase {
         let responseJSON = try JSONDecoder().decode(SuccessResponse.self, from: response.body)
 
         XCTAssertEqual(response.status, .ok)
-        XCTAssertTrue(response.headers.cacheControl?.noStore ?? false)
-        XCTAssertEqual(response.headers[HTTPHeaders.Name.pragma], ["no-cache"])
+        XCTAssertTrue(response.headers.contains(name: .cacheControl) && response.headers.cacheControl?.noStore == true)
+        XCTAssertEqual(response.headers.first(name: .pragma), "no-cache")
         XCTAssertEqual(responseJSON.tokenType, "bearer")
         XCTAssertEqual(responseJSON.expiresIn, 3600)
         XCTAssertEqual(responseJSON.accessToken, accessToken)
@@ -338,7 +338,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         XCTAssertEqual(responseJSON.scope, scopes)
 
         guard let token = fakeTokenManager.getAccessToken(accessToken) else {
-            XCTFail()
+            XCTFail("Access token not found")
             return
         }
 
@@ -413,13 +413,13 @@ class AuthorizationCodeTokenTests: XCTestCase {
         _ = try await getAuthCodeResponse(code: newCodeString)
 
         guard let accessToken = fakeTokenManager.getAccessToken(accessTokenString) else {
-            XCTFail()
+            XCTFail("Access token not found")
             return
         }
 
         XCTAssertEqual(accessToken.scopes, scopes)
     }
-
+    
     func testTokenHasExpiryTimeSetOnIt() async throws {
         let accessTokenString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         fakeTokenManager.accessTokenToReturn = accessTokenString
@@ -488,7 +488,7 @@ class AuthorizationCodeTokenTests: XCTestCase {
         _ = try await getAuthCodeResponse()
 
         guard let refreshToken = fakeTokenManager.getRefreshToken(refreshTokenString) else {
-            XCTFail()
+            XCTFail("Refresh token not found")
             return
         }
 

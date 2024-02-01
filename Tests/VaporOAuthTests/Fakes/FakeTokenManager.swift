@@ -75,6 +75,7 @@ class FakeTokenManager: TokenManager {
         
         accessTokens[accessTokenToReturn] = accessToken
         refreshTokens[refreshTokenToReturn] = refreshToken
+        
         return (accessToken, refreshToken)
     }
     
@@ -86,7 +87,7 @@ class FakeTokenManager: TokenManager {
     
     func updateRefreshToken(_ refreshToken: RefreshToken, scopes: String) {
         var tempRefreshToken = refreshToken
-        tempRefreshToken.scopes = scopes
+        tempRefreshToken.scopes = scopes.joined(separator: " ")
         refreshTokens[refreshToken.jti] = tempRefreshToken
     }
     
