@@ -5,7 +5,7 @@ public protocol RefreshToken: JWTPayload {
     var jti: String { get set }
     var clientID: String { get set }
     var userID: String? { get set }
-    var scopes: [String]? { get set }
+    var scopes: String? { get set }
     var exp: Date { get }
 }
 

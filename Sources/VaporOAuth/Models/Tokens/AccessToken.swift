@@ -5,7 +5,7 @@ public protocol AccessToken: JWTPayload {
     var jti: String { get }
     var clientID: String { get }
     var userID: String? { get }
-    var scopes: [String]? { get }
+    var scopes: String? { get }
     var expiryTime: Date { get }
 }
 

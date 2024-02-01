@@ -21,7 +21,7 @@ struct RefreshTokenHandler {
         }
 
         let scopesString: String? = request.content[OAuthRequestParameters.scope]
-        var scopesRequested = scopesString?.components(separatedBy: " ")
+        var scopesRequested: [String]? = scopesString?.components(separatedBy: " ")
 
         if let scopes = scopesRequested {
             do {
@@ -51,7 +51,7 @@ struct RefreshTokenHandler {
 
             try await tokenManager.updateRefreshToken(refreshTokenRequest.refreshToken, scopes: scopes)
         } else {
-            scopesRequested = refreshTokenRequest.refreshToken.scopes
+            scopesRequested = refreshTokenRequest.refreshToken.scopes?.components(separatedBy: " ")
         }
 
         let expiryTime = 3600
