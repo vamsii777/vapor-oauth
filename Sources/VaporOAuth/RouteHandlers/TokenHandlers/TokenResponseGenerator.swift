@@ -1,6 +1,9 @@
 import Vapor
 
 struct TokenResponseGenerator {
+    
+    let jwtSignerService: JWTSignerService
+    
     func createResponse(error: String, description: String, status: HTTPStatus = .badRequest) throws -> Response {
         let jsonDictionary = [
             OAuthResponseParameters.error: error,
@@ -10,16 +13,22 @@ struct TokenResponseGenerator {
         return try createResponseForToken(status: status, jsonData: json)
     }
 
-    func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?,
-                        expires: Int, scope: String?) throws -> Response {
-        var jsonDictionary = [
+    func createResponse(accessToken: AccessToken, refreshToken: RefreshToken?, expires: Int, scope: String?) async throws -> Response {
+        let jwtSigner = try await jwtSignerService.makeJWTSigner()
+
+        // Sign the access token to create JWT
+        let accessTokenJWT = try jwtSigner.sign(accessToken)
+
+        var jsonDictionary: [String: Any] = [
             OAuthResponseParameters.tokenType: "bearer",
             OAuthResponseParameters.expires: expires,
-            OAuthResponseParameters.accessToken: accessToken.tokenString
-        ] as [String : Any]
+            OAuthResponseParameters.accessToken: accessTokenJWT
+        ]
 
+        // If a refresh token is available, sign it to create JWT
         if let refreshToken = refreshToken {
-            jsonDictionary[OAuthResponseParameters.refreshToken] = refreshToken.tokenString
+            let refreshTokenJWT = try jwtSigner.sign(refreshToken)
+            jsonDictionary[OAuthResponseParameters.refreshToken] = refreshTokenJWT
         }
 
         if let scope = scope {
@@ -42,23 +51,30 @@ struct TokenResponseGenerator {
         return response
     }
 
-    func createOpenIDConnectResponse(accessToken: AccessToken, refreshToken: RefreshToken?, idToken: IDToken, expires: Int, scope: String?) throws -> Response {
-        var jsonDictionary: [String: Any] = [:]
-        
-        jsonDictionary[OAuthResponseParameters.accessToken] = accessToken
-        jsonDictionary[OAuthResponseParameters.idToken] = idToken
-        jsonDictionary[OAuthResponseParameters.expiresIn] = expires
-        
+    func createOpenIDConnectResponse(accessToken: AccessToken, refreshToken: RefreshToken?, idToken: IDToken, expires: Int, scope: String?) async throws -> Response {
+        let jwtSigner = try await jwtSignerService.makeJWTSigner()
+
+        // Sign the access token and ID token
+        let accessTokenString = try jwtSigner.sign(accessToken)
+        let idTokenString = try jwtSigner.sign(idToken)
+
+        var jsonDictionary: [String: Any] = [
+            OAuthResponseParameters.accessToken: accessTokenString,
+            OAuthResponseParameters.idToken: idTokenString,
+            OAuthResponseParameters.expiresIn: expires
+        ]
+
+        // If a refresh token is available, sign it and add it to the response
         if let refreshToken = refreshToken {
-            jsonDictionary[OAuthResponseParameters.refreshToken] = refreshToken
+            let refreshTokenString = try jwtSigner.sign(refreshToken)
+            jsonDictionary[OAuthResponseParameters.refreshToken] = refreshTokenString
         }
-        
+
         if let scope = scope {
             jsonDictionary[OAuthResponseParameters.scope] = scope
         }
-        
+
         let json = try JSONSerialization.data(withJSONObject: jsonDictionary)
         return try createResponseForToken(status: .ok, jsonData: json)
     }
-
 }

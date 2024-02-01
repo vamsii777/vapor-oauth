@@ -21,12 +21,12 @@ struct RefreshTokenHandler {
         }
 
         let scopesString: String? = request.content[OAuthRequestParameters.scope]
-        var scopesRequested = scopesString?.components(separatedBy: " ")
+        var scopesRequested: [String]? = scopesString?.components(separatedBy: " ")
 
         if let scopes = scopesRequested {
-
             do {
-                try await scopeValidator.validateScope(clientID: refreshTokenRequest.clientID, scopes: scopes)
+                let scopesString = scopes.joined(separator: " ")
+                try await scopeValidator.validateScope(clientID: refreshTokenRequest.clientID, scopes: scopesString)
             } catch ScopeError.invalid {
                 return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                  description: "Request contained an invalid scope")
@@ -51,17 +51,17 @@ struct RefreshTokenHandler {
 
             try await tokenManager.updateRefreshToken(refreshTokenRequest.refreshToken, scopes: scopes)
         } else {
-            scopesRequested = refreshTokenRequest.refreshToken.scopes
+            scopesRequested = refreshTokenRequest.refreshToken.scopes?.components(separatedBy: " ")
         }
 
         let expiryTime = 3600
-        let accessToken  = try await tokenManager.generateAccessToken(
+        let accessToken  = try await tokenManager.generateAccessRefreshTokens(
             clientID: refreshTokenRequest.clientID,
             userID: refreshTokenRequest.refreshToken.userID,
-            scopes: scopesRequested, expiryTime: expiryTime
+            scopes: scopesRequested, accessTokenExpiryTime: expiryTime
         )
 
-        return try tokenResponseGenerator.createResponse(accessToken: accessToken, refreshToken: nil,
+        return try await tokenResponseGenerator.createResponse(accessToken: accessToken.0, refreshToken: accessToken.1,
                                                          expires: expiryTime, scope: scopesString)
     }
 

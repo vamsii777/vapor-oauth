@@ -14,7 +14,8 @@ class TestDataBuilder {
         environment: Environment = .testing,
         logger: CapturingLogger? = nil,
         sessions: FakeSessions? = nil,
-        registeredUsers: [OAuthUser] = []
+        registeredUsers: [OAuthUser] = [],
+        jwtSignerService: JWTSignerService = FakeJWTSignerService() // Add this parameter
     ) throws -> Application {
         let app = Application(environment)
         
@@ -38,7 +39,7 @@ class TestDataBuilder {
                     tokenAuthenticator: nil,
                     userManager: nil,
                     tokenManager: nil
-                )
+                ), jwtSignerService: jwtSignerService
             )
         )
         

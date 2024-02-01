@@ -41,7 +41,7 @@ struct PasswordTokenHandler {
 
         if let scopes = scopeString {
             do {
-                try await scopeValidator.validateScope(clientID: clientID, scopes: scopes.components(separatedBy: " "))
+                try await scopeValidator.validateScope(clientID: clientID, scopes: scopes)
             } catch ScopeError.invalid {
                 return try tokenResponseGenerator.createResponse(error: OAuthResponseParameters.ErrorType.invalidScope,
                                                                  description: "Request contained an invalid scope")
@@ -64,7 +64,7 @@ struct PasswordTokenHandler {
                                                                              scopes: scopes,
                                                                              accessTokenExpiryTime: expiryTime)
 
-        return try tokenResponseGenerator.createResponse(accessToken: access, refreshToken: refresh,
+        return try await tokenResponseGenerator.createResponse(accessToken: access, refreshToken: refresh,
                                                          expires: expiryTime, scope: scopeString)
     }
 }

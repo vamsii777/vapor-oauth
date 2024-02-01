@@ -26,7 +26,6 @@ struct AuthorizeGetHandler {
                                            state: authRequestObject.state)
             }
             
-            
             guard authRequestObject.scopes.contains("openid") else {
                 return createErrorResponse(request: request,
                                            redirectURI: authRequestObject.redirectURIString,

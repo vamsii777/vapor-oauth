@@ -229,8 +229,8 @@ class PasswordGrantTokenTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(accessToken.scopes ?? [], ["email", "create"])
-        XCTAssertEqual(refreshToken.scopes ?? [], ["email", "create"])
+        XCTAssertEqual(accessToken.scopes, "email create")
+        XCTAssertEqual(refreshToken.scopes, "email create")
     }
 
     func testCorrectErrorWhenReqeustingScopeApplicationDoesNotHaveAccessTo() async throws {
@@ -356,7 +356,7 @@ class PasswordGrantTokenTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(refreshToken.scopes ?? [], ["email", "create"])
+        XCTAssertEqual(refreshToken.scopes, "email create")
     }
 
     func testUserIDSetOnRefreshToken() async throws {

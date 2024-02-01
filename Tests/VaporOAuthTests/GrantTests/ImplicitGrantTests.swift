@@ -330,7 +330,7 @@ class ImplicitGrantTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(token.scopes ?? [], [scope1, scope2])
+        XCTAssertEqual(token.scopes, "\(scope1) \(scope2)")
         XCTAssertEqual(token.clientID, testClientID)
     }
 

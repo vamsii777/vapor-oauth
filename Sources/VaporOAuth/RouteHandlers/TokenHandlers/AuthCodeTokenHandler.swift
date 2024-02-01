@@ -60,7 +60,7 @@ struct AuthCodeTokenHandler {
                 nonce: code.nonce
             )
             
-            return try tokenResponseGenerator.createOpenIDConnectResponse(accessToken: access, refreshToken: refresh, idToken: idToken, expires: Int(expiryTime), scope: scopes?.joined(separator: " "))
+            return try await tokenResponseGenerator.createOpenIDConnectResponse(accessToken: access, refreshToken: refresh, idToken: idToken, expires: Int(expiryTime), scope: scopes?.joined(separator: " "))
             
         } else {
             let (access, refresh) = try await tokenManager.generateAccessRefreshTokens(
@@ -70,7 +70,7 @@ struct AuthCodeTokenHandler {
                 accessTokenExpiryTime: expiryTime
             )
             
-            return try tokenResponseGenerator.createResponse(accessToken: access, refreshToken: refresh, expires: Int(expiryTime), scope: scopes?.joined(separator: " "))
+            return try await tokenResponseGenerator.createResponse(accessToken: access, refreshToken: refresh, expires: Int(expiryTime), scope: scopes?.joined(separator: " "))
         }
     }
 }

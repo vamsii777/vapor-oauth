@@ -32,6 +32,8 @@ public enum AuthorizationError: Error {
     // PKCE specific errors
     case invalidCodeChallenge
     case invalidCodeChallengeMethod
+    case unauthorizedResponseType
+    case invalidResponseType
 }
 
 
