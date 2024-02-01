@@ -23,4 +23,11 @@ class FakeUserManager: UserManager {
         }
         return nil
     }
+    
+
+    func getUserClient(userID: String, clientID: String) -> OAuthUser? {
+        // Do implementation
+        return nil
+    }
+    
 }
