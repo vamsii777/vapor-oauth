@@ -45,7 +45,7 @@ struct UserInfoHandler {
 struct AccessTokenPayload: JWTPayload {
     let sub: String?
     let aud: String?
-    let scopes: [String]?
+    let scopes: String?
     let exp: Date
     
     func verify(using signer: JWTSigner) throws {
