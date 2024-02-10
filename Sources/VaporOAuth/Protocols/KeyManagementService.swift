@@ -27,7 +27,7 @@ public protocol KeyManagementService: Sendable {
     ///   - keyType: The type of the key (public or private).
     /// - Returns: The key data.
     /// - Throws: An error if the key retrieval fails.
-    func retrieveKey(identifier: String, keyType: KeyType) async throws -> Data
+    func retrieveKey(identifier: String, keyType: KeyType) async throws -> String
 
     /// Retrieves the identifier of the public key.
     /// - Returns: The identifier of the public key.
@@ -38,7 +38,7 @@ public protocol KeyManagementService: Sendable {
     /// - Parameter publicKey: The public key data.
     /// - Returns: The JWK representation of the public key.
     /// - Throws: An error if the conversion fails.
-    func convertToJWK(_ publicKey: Data) throws -> [JWK]
+    func convertToJWK(_ publicKey: String) throws -> [JWK]
 
     /// Retrieves the identifier of the private key.
     /// - Returns: The identifier of the private key.

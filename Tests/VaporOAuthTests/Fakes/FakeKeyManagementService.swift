@@ -33,11 +33,11 @@ class FakeKeyManagementService: KeyManagementService {
         }
     }
     
-    func retrieveKey(identifier: String, keyType: KeyType) async throws -> Data {
+    func retrieveKey(identifier: String, keyType: KeyType) async throws -> String {
         guard let key = keys[identifier] else {
             throw NSError(domain: "FakeKeyManagementService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Key not found"])
         }
-        return key
+        return key.base64EncodedString()
     }
     
     func publicKeyIdentifier() async throws -> String {
@@ -80,7 +80,7 @@ class FakeKeyManagementService: KeyManagementService {
         return Array(keys.keys)
     }
     
-    func convertToJWK(_ publicKey: Data) throws -> [JWTKit.JWK] {
+    func convertToJWK(_ publicKey: String) throws -> [JWTKit.JWK] {
         // Assuming that publicKey data can be converted to the necessary components
         // for an ECDSA key. You'll need to adjust this to suit your actual key format.
         // This is just an illustrative example.
