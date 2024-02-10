@@ -3,7 +3,7 @@ import Vapor
 public struct OAuthUser: Authenticatable, Content {
     public var id: String?
     public let username: String
-    public let emailAddress: String?
+    public var emailAddress: String?
     public var password: String
 
     // OpenID Connect specific attributes
