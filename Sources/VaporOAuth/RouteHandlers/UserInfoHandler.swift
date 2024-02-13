@@ -13,7 +13,7 @@ struct UserInfoHandler {
         
         // Enforce HTTPS in production environment
         if environment == .production {
-            guard req.url.scheme == "https" else {
+            guard req.url.scheme != "https" else {
                 throw Abort(.badRequest, reason: "UserInfo endpoint requires HTTPS")
             }
         }
